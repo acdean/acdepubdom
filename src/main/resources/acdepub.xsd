@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.koogy.clara.co.uk"
+  xmlns="http://www.koogy.clara.co.uk"
+  elementFormDefault="qualified">
+
+  <xs:element name="book">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="info"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="prefix" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="part" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="chapter" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="act" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="appendix" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="info">
+    <xs:complexType>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="author" maxOccurs="1"/>
+          <xs:element ref="toctitle" minOccurs="0" maxOccurs="1"/>
+          <xs:element ref="title" maxOccurs="1"/>
+          <xs:element ref="subtitle" minOccurs="0" maxOccurs="1"/>
+          <xs:element ref="date" maxOccurs="1"/>
+          <xs:element ref="option" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="author" type="xs:string"/>
+  <xs:element name="title" type="xs:string"/>
+  <xs:element name="toctitle" type="xs:string"/>
+  <xs:element name="subtitle" type="xs:string"/>
+  <xs:element name="date" type="xs:integer"/>
+
+  <xs:element name="option">
+    <xs:complexType>
+      <xs:attribute name="name" use="required" type="xs:string"/>
+      <xs:attribute name="value" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- main paragraph class -->
+  <xs:element name="p">
+    <xs:complexType mixed="true">
+      <xs:choice maxOccurs="unbounded">
+        <!-- prefer em -->
+        <xs:element ref="em" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="i" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="right" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="title" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="sc" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="p0" substitutionGroup="p"/>
+
+  <xs:element name="i" type="xs:string"/>
+  <xs:element name="em" type="xs:string"/>
+  <xs:element name="sc" type="xs:string"/>
+  <xs:element name="p2" type="xs:string"/>
+  <xs:element name="p3" type="xs:string"/>
+
+  <xs:element name="right">
+    <xs:complexType mixed="true">
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="sc" minOccurs="0"/>
+        <xs:element ref="em" minOccurs="0"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="centre">
+    <xs:complexType mixed="true">
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="sc" minOccurs="0"/>
+        <xs:element ref="em" minOccurs="0"/>
+        <xs:element ref="i" minOccurs="0"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="center" substitutionGroup="centre"/>
+
+  <xs:element name="person">
+    <xs:complexType>
+      <xs:attribute name="description" use="required"/>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- parts are full of chapters -->
+  <xs:element name="part">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="chapter" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- chapters mostly full of paragraphs -->
+  <xs:complexType name="chapterType">
+    <xs:sequence>
+      <xs:element ref="title" minOccurs="0"/>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="break" maxOccurs="unbounded"/>
+        <xs:element ref="centre" maxOccurs="unbounded"/>
+        <xs:element ref="centre" maxOccurs="unbounded"/>
+        <xs:element ref="hr" maxOccurs="unbounded"/>
+        <xs:element ref="letter" maxOccurs="unbounded"/>
+        <xs:element ref="p" maxOccurs="unbounded"/>
+        <xs:element ref="p0" maxOccurs="unbounded"/>
+        <xs:element ref="poem" maxOccurs="unbounded"/>
+        <xs:element ref="right" maxOccurs="unbounded"/>
+        <xs:element ref="section" maxOccurs="unbounded"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="title"/>
+  </xs:complexType>
+  <xs:element name="prefix" type="chapterType"/>
+  <xs:element name="chapter" type="chapterType"/>
+  <xs:element name="appendix" type="chapterType"/>
+
+  <!-- acts are like chapters but for plays -->
+  <xs:element name="act">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="direction"/>
+          <xs:element ref="hr"/>
+          <xs:element ref="speaker"/>
+          <xs:element ref="speech"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="speaker" type="xs:string"/>
+  <xs:element name="hr"/>
+
+  <xs:element name="speech">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="direction"/>
+        <xs:element ref="line"/>
+        <xs:element ref="br"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="line" type="xs:integer"/>
+
+  <xs:element name="br">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="break">
+    <xs:complexType/>
+  </xs:element>
+
+  <xs:element name="section" type="xs:string"/>
+  <xs:element name="direction" type="xs:string"/>
+
+  <xs:element name="poem">
+      <xs:complexType>
+          <xs:sequence>
+              <xs:choice maxOccurs="unbounded">
+                  <xs:element ref="poem1" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="poem2" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="poem3" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="poem4" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="poem5" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:choice>
+          </xs:sequence>
+      </xs:complexType>
+  </xs:element>
+  <xs:element name="poem1" type="xs:string"/>
+  <xs:element name="poem2" type="xs:string"/>
+  <xs:element name="poem3" type="xs:string"/>
+  <xs:element name="poem4" type="xs:string"/>
+  <xs:element name="poem5" type="xs:string"/>
+
+  <!-- letters are wrappers like p -->
+  <xs:element name="letter">
+      <xs:complexType>
+          <xs:sequence>
+              <xs:choice maxOccurs="unbounded">
+                  <xs:element ref="p" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="right" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="p2" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="p3" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="break" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:choice>
+          </xs:sequence>
+      </xs:complexType>
+  </xs:element>
+
+</xs:schema>
