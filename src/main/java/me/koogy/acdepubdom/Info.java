@@ -13,7 +13,7 @@ import org.w3c.dom.NodeList;
 */
 public class Info {
 
-    Logger logger = LoggerFactory.getLogger(Info.class);
+    private static final Logger logger = LoggerFactory.getLogger(Info.class);
 
     private String author;
     private String tocTitle;
@@ -31,30 +31,29 @@ public class Info {
             logger.info("Current Element [{}]", node.getNodeName());
             switch(node.getNodeName().toLowerCase()) {
                 case "author":
-                    logger.info("author");
                     author = node.getTextContent();
+                    logger.info("author [{}]", author);
                     break;
                 case "tocTitle":
-                    logger.info("tocTitle");
                     tocTitle = node.getTextContent();
+                    logger.info("tocTitle [{}]", tocTitle);
                     break;
                 case "title":
-                    logger.info("title");
                     title = node.getTextContent();
+                    logger.info("title [{}]", title);
                     break;
                 case "subtitle":
-                    logger.info("subtitle");
                     subtitle = node.getTextContent();
+                    logger.info("subtitle [{}]", subtitle);
                     break;
                 case "date":
-                    logger.info("date");
                     date = node.getTextContent();
+                    logger.info("date [{}]", date);
                     break;
                 case "option":
-                    logger.info("option");
                     setOption(node);
                 default:
-                    logger.info("Unknown");
+                    logger.info("Unknown [{}]", node.getNodeName());
                     break;
             }
         }
@@ -65,9 +64,10 @@ public class Info {
     // <option name="part.title_text" value="Book The"/>
     public final void setOption(Node option) {
         NamedNodeMap m = option.getAttributes();
-        Node name = m.getNamedItem("name");
-        Node value = m.getNamedItem("value");
-        options.put(name.getTextContent(), value.getTextContent());
+        String name = m.getNamedItem("name").getTextContent();
+        String value = m.getNamedItem("value").getTextContent();
+        options.put(name, value);
+        logger.info("Option [{}]:[{}]", name, value);
     }
 
     public String getAuthor() {
@@ -108,5 +108,20 @@ public class Info {
                 + ", date=" + date
                 + ", options=" + options
                 + "}";
+    }
+
+    // given a nodelist, find the info, or null
+    static Info findInfo(Node parent, int index) {
+        NodeList nodes = parent.getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            if (node.getNodeName().equals("info")) {
+                Info info = new Info(node, index);
+                logger.info("FindInfo [{}]", info);
+                return info;
+            }
+        }
+        logger.info("FindInfo none");
+        return null;
     }
 }

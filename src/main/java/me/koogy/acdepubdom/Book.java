@@ -46,7 +46,7 @@ public class Book {
         Velocity.init(p);
 
         // parse book info
-        Info bookInfo = new Info(root.getElementsByTagName("info").item(0), 0);
+        Info bookInfo = Info.findInfo(root, 0);
         logger.info("Info [{}]", bookInfo);
 
         // Title Page
@@ -81,56 +81,71 @@ public class Book {
     }
 
     private final void process(Info bookInfo, NodeList nodes) {
+        logger.info("Processing...");
         String nodeName;
+        int index = 1;
         for (int i = 0 ; i < nodes.getLength() ; i++) {
+            logger.info("Index [{}][{}]", i, index);
             Node node = nodes.item(i);
             nodeName = node.getNodeName().toLowerCase();
+            logger.info("NodeName [{}]", nodeName);
             switch(nodeName) {
+                case "#text":
+                    if (!node.getTextContent().trim().isEmpty()) {
+                        logger.info("TEXT[{}]", node.getTextContent());
+                    }
+                    break;
                 case "part":
-                    processPart(bookInfo, node, i);
+                    processPart(bookInfo, node, index);
+                    index++;
                     break;
                 case "prefix":
-                    processChapter(bookInfo, node, i, Chapter.PREFIX);
+                    processChapter(bookInfo, node, index, Chapter.PREFIX);
+                    index++;
                     break;
                 case "chapter":
                     if (partNumber != 0) {
                         // this is a chapter within a part
-                        processChapter(bookInfo, node, i, Chapter.PART_CHAPTER);
+                        processChapter(bookInfo, node, index, Chapter.PART_CHAPTER);
                     } else {
-                        processChapter(bookInfo, node, i, Chapter.CHAPTER);
+                        processChapter(bookInfo, node, index, Chapter.CHAPTER);
                     }
+                    index++;
                     break;
                 case "appendix":
-                    processChapter(bookInfo, node, i, Chapter.APPENDIX);
+                    processChapter(bookInfo, node, index, Chapter.APPENDIX);
+                    index++;
                     break;
                 default:
-                    logger.info("Node [{}]", nodeName);
+                    logger.info("default");
                     break;
             }
         }
+        logger.info("Processed");
     }
 
     void processPart(Info bookInfo, Node node, int index) {
+        logger.info("Part [{}]", index);
         // setting part number here for included chapters to use
         partNumber = index + 1;
         String filename = String.format("pt%02d.html", index + 1);
-        Info partInfo = new Info(node, index);
-        writeTemplate(PART_TMPL, filename, bookInfo, partInfo);
+        // part might have info node
+        Info info = Info.findInfo(node, index + 1);
+        writeTemplate(PART_TMPL, filename, bookInfo, info);
         // process all the children (which are chapters)
         process(bookInfo, node.getChildNodes());
-        logger.info("Part done");
+        logger.info("Part [{}] done", index);
     }
 
     void processChapter(Info bookInfo, Node node, int index, int type) {
+        logger.info("Chapter[{}] type[{}]", index, type);
         String filename = filenameFromType(type, index + 1);
         File f = new File(filename);
-        Info info = new Info(node, index);
+        // chapter may have info mode
+        Info info = Info.findInfo(node, index + 1);
         writeTemplate(CHAPTER_TMPL, filename, bookInfo, info);
-
-        logger.info("Chapter [{}]{", type);
-
-        //process(node.getChildNodes());
-        logger.info("}Chapter");
+        process(bookInfo, node.getChildNodes());
+        logger.info("Chapter done");
     }
 
     String filenameFromType(int type, int index) {

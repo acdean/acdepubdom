@@ -1,8 +1,13 @@
 package me.koogy.acdepubdom;
 
 import java.io.File;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -13,38 +18,55 @@ import org.xml.sax.SAXParseException;
 
 public class AcdEpubDom {
 
-    private static final Logger logger = LoggerFactory.getLogger(AcdEpubDom.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AcdEpubDom.class);
+    private static final String XSD_FILENAME = "src/main/resources/acdepub.xsd";
 
     public static void main(String[] args) throws Exception {
+
         String filename = args[0];
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setIgnoringElementContentWhitespace(true);
-        factory.setValidating(true);
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        builder.setErrorHandler(new MyErrorHandler());
-        Document document = builder.parse(new File(filename));
-        document.getDocumentElement().normalize();
-        logger.info("Document [{}]", document);
 
-        Element root = document.getDocumentElement();
+        LOG.info("Working Directory [{}]", System.getProperty("user.dir"));
+        LOG.info("Filename [{}]", filename);
 
-        // creates and writes files
-        Book book = new Book(filename, root);
+        try {
+            File xmlFile = new File(filename);
+
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(new File(XSD_FILENAME));
+
+            Validator validator = schema.newValidator();
+            validator.validate(new StreamSource(xmlFile));
+
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            docFactory.setNamespaceAware(true);
+            docFactory.setSchema(schema);
+            docFactory.setIgnoringElementContentWhitespace(true);
+
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document document = docBuilder.parse(xmlFile);
+            document.getDocumentElement().normalize();
+
+            Element root = document.getDocumentElement();
+            Book book = new Book(filename, root);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // just a class that logs errors
     static class MyErrorHandler implements ErrorHandler {
         @Override
         public void fatalError(SAXParseException exception) throws SAXException {
-            logger.error("fatalError: ", exception);
+            LOG.error("fatalError: ", exception);
         }
         @Override
         public void error(SAXParseException exception) throws SAXException {
-            logger.error("error: ", exception);
+            LOG.error("error: ", exception);
         }
         @Override
         public void warning(SAXParseException exception) throws SAXException {
-            logger.warn("warning: ", exception);
+            LOG.warn("warning: ", exception);
         }
     }
 }

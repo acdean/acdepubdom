@@ -106,15 +106,16 @@
   <!-- chapters mostly full of paragraphs -->
   <xs:complexType name="chapterType">
     <xs:sequence>
-      <xs:element ref="title" minOccurs="0"/>
+      <xs:choice>
+        <xs:element ref="title" minOccurs="0"/>
+        <xs:element ref="info" minOccurs="0"/>
+      </xs:choice>
       <xs:choice maxOccurs="unbounded">
         <xs:element ref="break" maxOccurs="unbounded"/>
-        <xs:element ref="centre" maxOccurs="unbounded"/>
         <xs:element ref="centre" maxOccurs="unbounded"/>
         <xs:element ref="hr" maxOccurs="unbounded"/>
         <xs:element ref="letter" maxOccurs="unbounded"/>
         <xs:element ref="p" maxOccurs="unbounded"/>
-        <xs:element ref="p0" maxOccurs="unbounded"/>
         <xs:element ref="poem" maxOccurs="unbounded"/>
         <xs:element ref="right" maxOccurs="unbounded"/>
         <xs:element ref="section" maxOccurs="unbounded"/>
@@ -137,6 +138,7 @@
           <xs:element ref="speech"/>
         </xs:choice>
       </xs:sequence>
+      <xs:attribute name="title"/>
     </xs:complexType>
   </xs:element>
 
