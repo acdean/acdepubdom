@@ -9,11 +9,23 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /*
-** Info, mostly for Book, can be part of Part
+** Info including options
 */
 public class Info {
 
     private static final Logger logger = LoggerFactory.getLogger(Info.class);
+
+    // Option names
+    public static String PART_TITLE_ENABLED_PROPERTY    = "part.titles";
+    public static String PART_TITLE_TEXT_PROPERTY       = "part.title_text";
+    public static String PART_NUMBER_STYLE_PROPERTY     = "part.number_style";
+    public static String CHAPTER_TITLE_ENABLED_PROPERTY = "chapter.titles";
+    public static String CHAPTER_TITLE_TEXT_PROPERTY    = "chapter.title_text";
+    public static String CHAPTER_NUMBER_STYLE_PROPERTY  = "chapter.number_style";
+    public static String CHAPTER_NUMBER_IN_TOC_PROPERTY = "chapter.number_in_toc";
+    public static String CHAPTER_NUMBERS_CONTINUOUS     = "chapter.numbers_continuous";
+    // option value
+    public static String CHAPTER_TITLE_TEXT_NONE        = "none";
 
     private String author;
     private String tocTitle;
@@ -21,10 +33,20 @@ public class Info {
     private String subtitle;
     private String date;
     private Map<String, String> options = new HashMap();
-    private String number;  // number string, like "Part I" or "Chapter The First" // TODO
+    private int index;
+    private String numbering;  // number string, like "Part I" or "Chapter The First" // TODO
+    private String contents;
+
+    public Info(int index) {
+        this.index = index;
+        setDefaults();
+        numbering = Numbers.numbering(options.get(CHAPTER_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), index);
+    }
 
     // this is an info node
     public Info(Node infoNode, int index) {
+        this.index = index;
+        setDefaults();
         NodeList nodes = infoNode.getChildNodes();
         for (int i = 0 ; i < nodes.getLength() ; i++) {
             Node node = nodes.item(i);
@@ -57,7 +79,18 @@ public class Info {
                     break;
             }
         }
-        number = "[Number " + index + "]"; // TODO calculate based on options and number
+        numbering = Numbers.numbering(options.get(CHAPTER_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), index);
+    }
+
+    void setDefaults() {
+        options.put(PART_TITLE_ENABLED_PROPERTY,    "true");
+        options.put(PART_TITLE_TEXT_PROPERTY,       "Part");
+        options.put(PART_NUMBER_STYLE_PROPERTY,     "I");
+        options.put(CHAPTER_TITLE_ENABLED_PROPERTY, "true");
+        options.put(CHAPTER_TITLE_TEXT_PROPERTY,    "Chapter");
+        options.put(CHAPTER_NUMBER_STYLE_PROPERTY,  "I");
+        options.put(CHAPTER_NUMBER_IN_TOC_PROPERTY, "true");
+        options.put(CHAPTER_NUMBERS_CONTINUOUS,     "false");
     }
 
     // this is like
@@ -94,8 +127,20 @@ public class Info {
         return options;
     }
 
-    public String getNumber() {
-        return number;
+    public int getIndex() {
+        return index;
+    }
+
+    public String getNumbering() {
+        return numbering;
+    }
+
+    public String getContents() {
+        return contents;
+    }
+
+    public void setContents(String contents) {
+        this.contents = contents;
     }
 
     @Override
@@ -122,6 +167,6 @@ public class Info {
             }
         }
         logger.info("FindInfo none");
-        return null;
+        return new Info(index);
     }
 }

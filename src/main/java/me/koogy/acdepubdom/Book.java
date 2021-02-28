@@ -31,6 +31,7 @@ public class Book {
 
     File directory;
     int partNumber;
+    StringBuilder contents = new StringBuilder();
 
     public Book(String filename, Element root) throws Exception {
 
@@ -53,27 +54,27 @@ public class Book {
         writeTemplate(TITLE_TMPL, "title_page.html", bookInfo);
 
         // prefixes
-        NodeList prefixes = root.getElementsByTagName("prefix");
+        NodeList prefixes = root.getElementsByTagName("/book/prefix");
         logger.info("Prefixes [{}]", prefixes.getLength());
         process(bookInfo, prefixes);
 
         // parts
-        NodeList parts = root.getElementsByTagName("part");
+        NodeList parts = root.getElementsByTagName("/book/part");
         logger.info("Parts [{}]", parts.getLength());
         process(bookInfo, parts);
 
         // acts
-        NodeList acts = root.getElementsByTagName("act");
+        NodeList acts = root.getElementsByTagName("/book/act");
         logger.info("Acts [{}]", acts.getLength());
         process(bookInfo, acts);
 
         // chapters
-        NodeList chapters = root.getElementsByTagName("chapter");
+        NodeList chapters = root.getElementsByTagName("/book/chapter");
         logger.info("Chapters [{}]", chapters.getLength());
         process(bookInfo, chapters);
 
         // appendixes
-        NodeList appendixes = root.getElementsByTagName("appendix");
+        NodeList appendixes = root.getElementsByTagName("/book/appendix");
         logger.info("Appendixes [{}]", appendixes.getLength());
         process(bookInfo, appendixes);
 
@@ -94,6 +95,10 @@ public class Book {
                     if (!node.getTextContent().trim().isEmpty()) {
                         logger.info("TEXT[{}]", node.getTextContent());
                     }
+                    String txt = node.getTextContent()
+                            .replaceAll("--", "—")  // mdash
+                            ;
+                    add(txt);   // mdash
                     break;
                 case "part":
                     processPart(bookInfo, node, index);
@@ -101,6 +106,10 @@ public class Book {
                     break;
                 case "prefix":
                     processChapter(bookInfo, node, index, Chapter.PREFIX);
+                    index++;
+                    break;
+                case "act":
+                    processChapter(bookInfo, node, index, Chapter.ACT);
                     index++;
                     break;
                 case "chapter":
@@ -116,6 +125,75 @@ public class Book {
                     processChapter(bookInfo, node, index, Chapter.APPENDIX);
                     index++;
                     break;
+
+                /*
+                ** SMALLER BITS
+                */
+                case "break":
+                    processBreak(bookInfo, node);
+                    break;
+                case "centre":
+                case "center":
+                    processDiv(bookInfo, node, "centre");
+                    break;
+                case "em":
+                case "i":
+                    processTag(bookInfo, node, "em");
+                    break;
+                case "fixed":
+                    processTag(bookInfo, node, "pre");
+                    break;
+                case "hr":
+                    processHr(bookInfo, node);
+                    break;
+                case "letter":
+                    processDiv(bookInfo, node, "letter");
+                    break;
+                case "p":
+                    processP(bookInfo, node);
+                    break;
+                case "p0":
+                case "p2":
+                case "p3":
+                    processP(bookInfo, node, nodeName);
+                    break;
+                case "right":
+                    processDiv(bookInfo, node, "right");
+                    break;
+                case "sc":
+                    processSpan(bookInfo, node, "smallcaps");
+                    break;
+                case "smallcaps":
+                    processSmallCaps(node);
+                    break;
+                case "section":
+                    processTag(bookInfo, node, "h3");
+                    break;
+
+                // poem bits
+                case "poem":
+                case "poem1":
+                case "poem2":
+                case "poem3":
+                case "poem4":
+                case "poem5":
+                    processP(bookInfo, node, nodeName);
+                    break;
+
+                // play bits
+                case "direction":
+                    processSpan(bookInfo, node, "direction");
+                    break;
+                case "line":
+                    processSpan(bookInfo, node, "line");
+                    break;
+                case "speaker":
+                    processP(bookInfo, node, "p0 speaker");
+                    break;
+                case "speech":
+                    processP(bookInfo, node, "p0 speech");
+                    break;
+
                 default:
                     logger.info("default");
                     break;
@@ -127,10 +205,10 @@ public class Book {
     void processPart(Info bookInfo, Node node, int index) {
         logger.info("Part [{}]", index);
         // setting part number here for included chapters to use
-        partNumber = index + 1;
-        String filename = String.format("pt%02d.html", index + 1);
+        partNumber = index;
+        String filename = String.format("pt%02d.html", partNumber);
         // part might have info node
-        Info info = Info.findInfo(node, index + 1);
+        Info info = Info.findInfo(node, index);
         writeTemplate(PART_TMPL, filename, bookInfo, info);
         // process all the children (which are chapters)
         process(bookInfo, node.getChildNodes());
@@ -138,14 +216,61 @@ public class Book {
     }
 
     void processChapter(Info bookInfo, Node node, int index, int type) {
-        logger.info("Chapter[{}] type[{}]", index, type);
-        String filename = filenameFromType(type, index + 1);
+        logger.info("Chapter[{}][{}] type[{}]", partNumber, index, type);
+        contents = new StringBuilder();
+        String filename = filenameFromType(type, index);
         File f = new File(filename);
-        // chapter may have info mode
-        Info info = Info.findInfo(node, index + 1);
-        writeTemplate(CHAPTER_TMPL, filename, bookInfo, info);
+        // chapter may have info node (is this true? epilogue?)
+        Info info = Info.findInfo(node, index);
+
         process(bookInfo, node.getChildNodes());
+
+        info.setContents(contents.toString());
+        writeTemplate(CHAPTER_TMPL, filename, bookInfo, info);
         logger.info("Chapter done");
+    }
+
+    void processBreak(Info bookInfo, Node node) {
+        add("<p><br /></p>\n");
+    }
+    void processHr(Info bookInfo, Node node) {
+        add("<div class='hr'>~</div>\n");
+    }
+    void processP(Info bookInfo, Node node) {
+        add("<p>");
+        process(bookInfo, node.getChildNodes());
+        add("</p>\n");
+    }
+    // special case
+    void processSmallCaps(Node node) {
+        add(toSmallCaps(node.getChildNodes().item(0).getTextContent()));
+    }
+
+    // generic versions
+    void processTag(Info bookInfo, Node node, String tag) {
+        add("<" + tag + ">");
+        process(bookInfo, node.getChildNodes());
+        add("</" + tag + ">");
+    }
+    void processP(Info bookInfo, Node node, String css) {
+        add("<p class='" + css + "'>");
+        process(bookInfo, node.getChildNodes());
+        add("</p>\n");
+    }
+    void processDiv(Info bookInfo, Node node, String css) {
+        add("<div class='" + css + "'>");
+        process(bookInfo, node.getChildNodes());
+        add("</div>");
+    }
+    void processSpan(Info bookInfo, Node node, String css) {
+        add("<span class='" + css + "'>");
+        process(bookInfo, node.getChildNodes());
+        add("</span>");
+    }
+
+    // cpnvenience method to append to contents
+    void add(String s) {
+        contents.append(s);
     }
 
     String filenameFromType(int type, int index) {
@@ -219,5 +344,41 @@ public class Book {
             ls.delete();
         }
         return dir;
+    }
+
+    /* 
+    ** Kobo rendering engine doesn't really do smallcaps
+    ** so replace with spans of proper class
+    ** ie <smallcaps>Charles Dexter Ward</smallcaps>
+    ** -> C<span class=sc>HARLES</span> D<span class=sc>EXTER</span> W<span class=span>ARD</span>
+    */
+    public static String toSmallCaps(String input) {
+        StringBuffer output = new StringBuffer();
+        boolean upper = true;
+        for (int i = 0 ; i < input.length() ; i++) {
+            char c = input.charAt(i);
+            if (Character.isUpperCase(c)) {
+                if (!upper) {
+                   // was lower, so end span
+                   output.append("</span>");
+                }
+                upper = true;
+            }
+            if (Character.isLowerCase(c)) {
+                c = Character.toUpperCase(c);
+                if (upper) {
+                    // was upper so start span
+                    output.append("<span class=\"sc\">");
+                }
+                upper = false;
+            }
+            output.append(c);
+        }
+        // done
+        if (!upper) {
+            // close the current span
+            output.append("</span>");
+        }
+        return output.toString();
     }
 }

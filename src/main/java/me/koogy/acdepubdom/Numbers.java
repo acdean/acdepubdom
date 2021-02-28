@@ -231,4 +231,21 @@ public class Numbers {
         }
         return result.toString();
     }
+
+    // sets the numbering
+    // 'Part III' or 'Three'
+    // name is the text part, like Book The
+    // style is for the numbers, like I or First or 1 or ONE
+    public static String numbering(String name, String style, int i) {
+        StringBuilder sb = new StringBuilder();
+        if (style.equalsIgnoreCase(Info.CHAPTER_TITLE_TEXT_NONE)) {
+            return null;
+        }
+        if (name != null && !name.equalsIgnoreCase(Info.CHAPTER_TITLE_TEXT_NONE)) {
+            sb.append(name);
+            sb.append(" ");
+        }
+        sb.append(Numbers.number(style, i));
+        return sb.toString();
+    }
 }
