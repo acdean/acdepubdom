@@ -1,0 +1,6 @@
+/target
+.classpath
+nbactions-acd\ config.xml
+nb-configuration.xml
+.project
+.settings
