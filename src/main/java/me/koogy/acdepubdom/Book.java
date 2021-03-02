@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
+import java.util.UUID;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
@@ -17,6 +18,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class Book {
+
+    // book parts
+    public static final int BOOK            = 0;
+    public static final int PART            = 1;
+    public static final int PREFIX          = 2;
+    public static final int CHAPTER         = 3;
+    public static final int ACT             = 4;
+    public static final int PART_CHAPTER    = 5;
+    public static final int APPENDIX        = 6;
+    public static final int FOOTNOTE        = 7;
 
     private static final String TOC_FILE = "toc.ncx";
     private static final String TOC_TMPL = "toc.vm";
@@ -30,14 +41,21 @@ public class Book {
     public static final Logger logger = LoggerFactory.getLogger(Book.class);
 
     File directory;
+    int tocIndex = 1;   // titlepage means this starts at 1
     int partNumber;
+    int chapterNumber;
     StringBuilder contents = new StringBuilder();
+    Writer tocWriter;
+    Writer contentWriter;
+    String uid = UUID.randomUUID().toString();
 
     public Book(String filename, Element root) throws Exception {
 
         // clear out and create working directory
         directory = makeTempDirectory(filename);
         logger.info("Directory [{}]", directory);
+        tocWriter = new FileWriter(new File(directory, TOC_FILE));
+        contentWriter = new FileWriter(new File(directory, CONTENT_FILE));
 
         // setup velocity
         VelocityEngine velocity = new VelocityEngine();
@@ -47,46 +65,26 @@ public class Book {
         Velocity.init(p);
 
         // parse book info
-        Info bookInfo = Info.findInfo(root, 0);
+        Info bookInfo = Info.findInfo(root, BOOK, 0);
         logger.info("Info [{}]", bookInfo);
+        initToc(bookInfo.getTitle(), uid);
 
         // Title Page
         writeTemplate(TITLE_TMPL, "title_page.html", bookInfo);
 
-        // prefixes
-        NodeList prefixes = root.getElementsByTagName("/book/prefix");
-        logger.info("Prefixes [{}]", prefixes.getLength());
-        process(bookInfo, prefixes);
+        NodeList nodeList = root.getChildNodes();
+        logger.info("Nodes [{}]", nodeList.getLength());
+        process(bookInfo, nodeList);
 
-        // parts
-        NodeList parts = root.getElementsByTagName("/book/part");
-        logger.info("Parts [{}]", parts.getLength());
-        process(bookInfo, parts);
-
-        // acts
-        NodeList acts = root.getElementsByTagName("/book/act");
-        logger.info("Acts [{}]", acts.getLength());
-        process(bookInfo, acts);
-
-        // chapters
-        NodeList chapters = root.getElementsByTagName("/book/chapter");
-        logger.info("Chapters [{}]", chapters.getLength());
-        process(bookInfo, chapters);
-
-        // appendixes
-        NodeList appendixes = root.getElementsByTagName("/book/appendix");
-        logger.info("Appendixes [{}]", appendixes.getLength());
-        process(bookInfo, appendixes);
-
+        closeToc();
         close();
     }
 
     private final void process(Info bookInfo, NodeList nodes) {
         logger.info("Processing...");
         String nodeName;
-        int index = 1;
         for (int i = 0 ; i < nodes.getLength() ; i++) {
-            logger.info("Index [{}][{}]", i, index);
+            logger.info("Index [{}]", i);
             Node node = nodes.item(i);
             nodeName = node.getNodeName().toLowerCase();
             logger.info("NodeName [{}]", nodeName);
@@ -101,29 +99,24 @@ public class Book {
                     add(txt);   // mdash
                     break;
                 case "part":
-                    processPart(bookInfo, node, index);
-                    index++;
+                    processPart(bookInfo, node);
                     break;
                 case "prefix":
-                    processChapter(bookInfo, node, index, Chapter.PREFIX);
-                    index++;
+                    processChapter(bookInfo, node, PREFIX);
                     break;
                 case "act":
-                    processChapter(bookInfo, node, index, Chapter.ACT);
-                    index++;
+                    processChapter(bookInfo, node, ACT);
                     break;
                 case "chapter":
                     if (partNumber != 0) {
                         // this is a chapter within a part
-                        processChapter(bookInfo, node, index, Chapter.PART_CHAPTER);
+                        processChapter(bookInfo, node, PART_CHAPTER);
                     } else {
-                        processChapter(bookInfo, node, index, Chapter.CHAPTER);
+                        processChapter(bookInfo, node, CHAPTER);
                     }
-                    index++;
                     break;
                 case "appendix":
-                    processChapter(bookInfo, node, index, Chapter.APPENDIX);
-                    index++;
+                    processChapter(bookInfo, node, APPENDIX);
                     break;
 
                 /*
@@ -202,29 +195,41 @@ public class Book {
         logger.info("Processed");
     }
 
-    void processPart(Info bookInfo, Node node, int index) {
-        logger.info("Part [{}]", index);
-        // setting part number here for included chapters to use
-        partNumber = index;
+    void processPart(Info bookInfo, Node node) {
+        partNumber++;
+        tocIndex++;
+        // reset chapter number unless we have continuous chapters
+        if (Info.getOption(bookInfo, Info.CHAPTER_NUMBERS_CONTINUOUS).equalsIgnoreCase("false")) {
+            chapterNumber = 0;
+        }
+        logger.info("Part [{}][{}]", partNumber, tocIndex);
+        
         String filename = String.format("pt%02d.html", partNumber);
         // part might have info node
-        Info info = Info.findInfo(node, index);
+        Info info = Info.findInfo(node, PART, partNumber);
         writeTemplate(PART_TMPL, filename, bookInfo, info);
-        // process all the children (which are chapters)
+        startToc(info.getTitle(), "part", filename);
+
         process(bookInfo, node.getChildNodes());
-        logger.info("Part [{}] done", index);
+
+        endToc();
+        logger.info("Part [{}][{}] done", partNumber, tocIndex);
     }
 
-    void processChapter(Info bookInfo, Node node, int index, int type) {
-        logger.info("Chapter[{}][{}] type[{}]", partNumber, index, type);
+    void processChapter(Info bookInfo, Node node, int type) {
+        chapterNumber++;
+        tocIndex++;
+        logger.info("Chapter[{}][{}][{}] type[{}]", partNumber, chapterNumber, tocIndex, type);
         contents = new StringBuilder();
-        String filename = filenameFromType(type, index);
+        String filename = filenameFromType(type, chapterNumber);
         File f = new File(filename);
         // chapter may have info node (is this true? epilogue?)
-        Info info = Info.findInfo(node, index);
+        Info info = Info.findInfo(node, type, chapterNumber);
+        startToc(info.getTitle(), "chapter", filename);
 
         process(bookInfo, node.getChildNodes());
 
+        endToc();
         info.setContents(contents.toString());
         writeTemplate(CHAPTER_TMPL, filename, bookInfo, info);
         logger.info("Chapter done");
@@ -276,19 +281,19 @@ public class Book {
     String filenameFromType(int type, int index) {
         String filename = null;
         switch (type) {
-            case Chapter.PREFIX:
+            case PREFIX:
                 filename = String.format("pre%03d.html", index);
                 break;
-            case Chapter.PART_CHAPTER:
+            case PART_CHAPTER:
                 filename = String.format("ch%02d%03d.html", partNumber, index);
                 break;
-            case Chapter.CHAPTER:
+            case CHAPTER:
                 filename = String.format("ch%03d.html", index);
                 break;
-            case Chapter.APPENDIX:
+            case APPENDIX:
                 filename = String.format("app%03d.html", index);
                 break;
-            case Chapter.FOOTNOTE:
+            case FOOTNOTE:
                 filename = String.format("notes%03d.html", index);
                 break;
         }
@@ -380,5 +385,27 @@ public class Book {
             output.append("</span>");
         }
         return output.toString();
+    }
+
+    VelocityContext tocContext = new VelocityContext();
+    void initToc(String bookTitle, String uid) {
+        tocContext.put("bookTitle", bookTitle);
+        tocContext.put("uid", uid);
+        Velocity.mergeTemplate("velocity" + File.separator + "toc_header.vm", "UTF-8", tocContext, tocWriter);
+    }
+    void startToc(String title, String cls, String filename) {
+        tocContext.put("title", title);
+        tocContext.put("class", cls);
+        tocContext.put("filename", filename);
+        tocContext.put("index", tocIndex);
+        Velocity.mergeTemplate("velocity" + File.separator + "toc_entry_start.vm", "UTF-8", tocContext, tocWriter);
+    }
+    void endToc() {
+        tocContext.put("index", tocIndex);
+        Velocity.mergeTemplate("velocity" + File.separator + "toc_entry_end.vm", "UTF-8", tocContext, tocWriter);
+    }
+    void closeToc() throws Exception {
+        Velocity.mergeTemplate("velocity" + File.separator + "toc_footer.vm", "UTF-8", tocContext, tocWriter);
+        tocWriter.close();
     }
 }

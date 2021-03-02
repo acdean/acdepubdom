@@ -5,14 +5,6 @@ import org.slf4j.LoggerFactory;
 
 public class Chapter {
 
-    // chapter types
-    public static final int PREFIX          = 1;
-    public static final int CHAPTER         = 2;
-    public static final int ACT             = 3;
-    public static final int PART_CHAPTER    = 4;
-    public static final int APPENDIX        = 5;
-    public static final int FOOTNOTE        = 6;
-
     Logger logger = LoggerFactory.getLogger(Chapter.class);
 
     int index;

@@ -33,19 +33,16 @@ public class Info {
     private String subtitle;
     private String date;
     private Map<String, String> options = new HashMap();
-    private int index;
     private String numbering;  // number string, like "Part I" or "Chapter The First" // TODO
     private String contents;
 
-    public Info(int index) {
-        this.index = index;
+    public Info(int type, int number) {
         setDefaults();
-        numbering = Numbers.numbering(options.get(CHAPTER_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), index);
+        setNumbering(type, number);
     }
 
     // this is an info node
-    public Info(Node infoNode, int index) {
-        this.index = index;
+    public Info(Node infoNode, int type, int number) {
         setDefaults();
         NodeList nodes = infoNode.getChildNodes();
         for (int i = 0 ; i < nodes.getLength() ; i++) {
@@ -79,7 +76,7 @@ public class Info {
                     break;
             }
         }
-        numbering = Numbers.numbering(options.get(CHAPTER_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), index);
+        setNumbering(type, number);
     }
 
     void setDefaults() {
@@ -91,6 +88,22 @@ public class Info {
         options.put(CHAPTER_NUMBER_STYLE_PROPERTY,  "I");
         options.put(CHAPTER_NUMBER_IN_TOC_PROPERTY, "true");
         options.put(CHAPTER_NUMBERS_CONTINUOUS,     "false");
+    }
+
+    void setNumbering(int type, int number) {
+        switch (type) {
+            case Book.PART:
+                numbering = Numbers.numbering(options.get(PART_TITLE_TEXT_PROPERTY), options.get(PART_NUMBER_STYLE_PROPERTY), number);
+                break;
+            // TODO numbering of chapters
+            case Book.ACT:
+            case Book.CHAPTER:
+            case Book.PART_CHAPTER:
+            case Book.PREFIX:
+            case Book.APPENDIX:
+                numbering = Numbers.numbering(options.get(CHAPTER_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), number);
+                break;
+        }
     }
 
     // this is like
@@ -127,10 +140,6 @@ public class Info {
         return options;
     }
 
-    public int getIndex() {
-        return index;
-    }
-
     public String getNumbering() {
         return numbering;
     }
@@ -141,6 +150,15 @@ public class Info {
 
     public void setContents(String contents) {
         this.contents = contents;
+    }
+
+    public String getOption(String optionName) {
+        return options.get(optionName);
+    }
+
+    // static version of above
+    public static String getOption(Info info, String optionName) {
+        return info.options.get(optionName);
     }
 
     @Override
@@ -156,17 +174,17 @@ public class Info {
     }
 
     // given a nodelist, find the info, or null
-    static Info findInfo(Node parent, int index) {
+    static Info findInfo(Node parent, int type, int number) {
         NodeList nodes = parent.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             if (node.getNodeName().equals("info")) {
-                Info info = new Info(node, index);
+                Info info = new Info(node, type, number);
                 logger.info("FindInfo [{}]", info);
                 return info;
             }
         }
         logger.info("FindInfo none");
-        return new Info(index);
+        return new Info(type, number);
     }
 }

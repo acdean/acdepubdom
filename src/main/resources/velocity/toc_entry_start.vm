@@ -1,0 +1,5 @@
+    <navPoint class="$class" id="navPoint-$index" playOrder="$index">
+      <navLabel>
+        <text>$title</text>
+      </navLabel>
+      <content src="$filename"/>
