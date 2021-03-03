@@ -1,0 +1,37 @@
+body.text {margin-left:2%; margin-right:2%; margin-top:5%; text-align:justify;}
+body.image {margin:0px;}
+h1 {text-align:center; line-height:1em;}
+h1.subtitle {text-align:center; line-height:1em; font-size:1.5em; font-style:italic;}
+h2 {text-align:center; line-height:1em;}
+h3 {text-align:center; margin-top:10px; margin-bottom:10px;}
+h4 {text-align:center; line-height:1em;}
+h5 {text-align:center; line-height:1em;}
+h6 {text-align:center; line-height:1em;}
+table {margin-top:10px; margin-bottom:10px;}
+p {text-indent:30px; margin-top:0px; margin-bottom:0px;}
+p.p0 {text-indent:0px;}
+p.p1 {text-indent:30px;}
+p.p2 {text-indent:60px;}
+p.p3 {text-indent:90px;}
+p.p4 {text-indent:120px;}
+p.footnote {text-indent:0px}
+.centre {text-indent:0px; text-align:center}
+.center {text-indent:0px; text-align:center}
+.right {text-align:right}
+.hr {text-indent:0px; width:100%; text-align:center; margin-top:10px; margin-bottom:10px;}
+img {max-width:100%;}
+.letter {margin-top:10px; margin-bottom:10px; margin-left:30px; margin-right:30px; font-style:italic;}
+.letter p em {font-weight: bold;}
+.poem {margin-top:15px; margin-bottom:15px; font-size:smaller; font-style:italic;}
+.poem1 {margin-left:30px; margin-top:0px; margin-bottom:0px;}
+.poem2 {margin-left:60px; margin-top:0px; margin-bottom:0px;}
+.poem3 {margin-left:90px; margin-top:0px; margin-bottom:0px;}
+.poem4 {margin-left:120px; margin-top:0px; margin-bottom:0px;}
+.poem5 {margin-left:150px; margin-top:0px; margin-bottom:0px;}
+.smallcaps {font-variant: small-caps; font-size: smaller;}
+.sc {font-variant: small-caps; font-size: smaller;}
+pre {font-family:monospace; font-size: smaller;}
+.speaker {text-align: left; margin-top: 0px; margin-bottom: 0px;}
+.speech {margin-top: 0px; margin-left: 30px; display: block; white-space: pre-line; }
+.direction {font-style: italic;}
+.line {font-size: smaller; float: right;}

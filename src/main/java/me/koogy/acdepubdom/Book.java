@@ -5,7 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import org.apache.velocity.VelocityContext;
@@ -48,6 +50,7 @@ public class Book {
     Writer tocWriter;
     Writer contentWriter;
     String uid = UUID.randomUUID().toString();
+    List<String> items = new ArrayList<>();
 
     public Book(String filename, Element root) throws Exception {
 
@@ -55,7 +58,6 @@ public class Book {
         directory = makeTempDirectory(filename);
         logger.info("Directory [{}]", directory);
         tocWriter = new FileWriter(new File(directory, TOC_FILE));
-        contentWriter = new FileWriter(new File(directory, CONTENT_FILE));
 
         // setup velocity
         VelocityEngine velocity = new VelocityEngine();
@@ -78,6 +80,8 @@ public class Book {
 
         closeToc();
         close();
+
+        writeTemplate(CONTENT_TMPL, "content.opf", bookInfo, null, items);
     }
 
     private final void process(Info bookInfo, NodeList nodes) {
@@ -151,8 +155,10 @@ public class Book {
                     processP(bookInfo, node);
                     break;
                 case "p0":
+                case "p1":
                 case "p2":
                 case "p3":
+                case "p4":
                     processP(bookInfo, node, nodeName);
                     break;
                 case "right":
@@ -210,6 +216,7 @@ public class Book {
         logger.info("Part [{}][{}]", partNumber, tocIndex);
 
         String filename = String.format("pt%02d.html", partNumber);
+        items.add(filename.replaceFirst(".html", ""));
         // part might have info node
         Info info = Info.findInfo(node, PART, partNumber);
         writeTemplate(PART_TMPL, filename, bookInfo, info);
@@ -225,9 +232,9 @@ public class Book {
         chapterNumber++;
         tocIndex++;
         logger.info("Chapter[{}][{}][{}] type[{}]", partNumber, chapterNumber, tocIndex, type);
-        contents = new StringBuilder();
         String filename = filenameFromType(type, chapterNumber);
         File f = new File(filename);
+        items.add(filename.replaceFirst(".html", ""));
         // chapter may have info node (is this true? epilogue?)
         Info info = Info.findInfo(node, type, chapterNumber);
         startToc(info.getTitle(), "chapter", filename);
@@ -316,6 +323,9 @@ public class Book {
         writeTemplate(templateName, filename, bookInfo, null);
     }
     void writeTemplate(String templateName, String filename, Info bookInfo, Info info) {
+        writeTemplate(templateName, filename, bookInfo, info, null);
+    }
+    void writeTemplate(String templateName, String filename, Info bookInfo, Info info, List<String> items) {
         Writer writer = null;
         VelocityContext context = new VelocityContext();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -324,6 +334,10 @@ public class Book {
         if (info != null) {
             context.put("info", info);
         }
+        if (items != null) {
+            context.put("items", items);
+        }
+        context.put("uid", uid);
 
         try {
             writer = new FileWriter(new File(directory, filename));
@@ -363,7 +377,7 @@ public class Book {
     ** -> C<span class=sc>HARLES</span> D<span class=sc>EXTER</span> W<span class=span>ARD</span>
     */
     public static String toSmallCaps(String input) {
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         boolean upper = true;
         for (int i = 0 ; i < input.length() ; i++) {
             char c = input.charAt(i);

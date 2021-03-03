@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="book_id" version="2.0">
+  <metadata xmlns:opf="http://www.idpf.org/2007/opf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
+    <dc:title>${book.title}</dc:title>
+    <dc:language>en</dc:language>
+    <dc:identifier id="book_id" opf:scheme="uuid">${uid}</dc:identifier>
+    <dc:creator opf:role="aut">${book.author}</dc:creator>
+    <dc:date>${book.date}</dc:date>
+    <meta name="cover" content="cover-image"/>
+  </metadata>
+  <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    <item id="css" href="stylesheet.css" media-type="text/css"/>
+    <item id="cover" href="cover.html" media-type="application/xhtml+xml"/>
+    <item id="cover-image" href="cover-image.jpg" media-type="image/jpeg"/>
+    <item id="title_page" href="title_page.html" media-type="application/xhtml+xml"/>
+#foreach( $item in $items )
+    <item id="${item}" href="${item}.html" media-type="application/xhtml+xml"/>
+#end
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="cover" linear="no"/>
+    <itemref idref="title_page"/>
+#foreach( $item in $items )
+    <itemref idref="${item}"/>
+#end
+  </spine>
+</package>
