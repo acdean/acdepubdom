@@ -128,6 +128,10 @@ public class Info {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getSubtitle() {
         return subtitle;
     }
@@ -175,16 +179,35 @@ public class Info {
 
     // given a nodelist, find the info, or null
     static Info findInfo(Node parent, int type, int number) {
+        Info info = null;
         NodeList nodes = parent.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             if (node.getNodeName().equals("info")) {
-                Info info = new Info(node, type, number);
+                info = new Info(node, type, number);
                 logger.info("FindInfo [{}]", info);
-                return info;
+                break;
             }
         }
-        logger.info("FindInfo none");
-        return new Info(type, number);
+        if (info == null) { // not found
+            logger.info("FindInfo none");
+            info = new Info(type, number);
+        }
+        // use title attribute if it exists
+        if (parent.hasAttributes()) {
+            String title = parent.getAttributes().getNamedItem("title").getTextContent();
+            if (title != null) {
+                info.setTitle(title);
+            }
+        }
+        // use title element if it exists as first child
+        if (parent.hasChildNodes()) {
+            Node child = parent.getFirstChild();
+            if (child.getNodeName().equals("title")) {
+                String title = child.getTextContent();
+                info.setTitle(title);
+            }
+        }
+        return info;
     }
 }

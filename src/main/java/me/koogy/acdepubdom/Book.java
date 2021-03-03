@@ -122,6 +122,11 @@ public class Book {
                 /*
                 ** SMALLER BITS
                 */
+                case "title":
+                    // this is parsed as part of part or chapter parsing
+                    // so do nothing here
+                    logger.info("Title tag [{}]", node.getTextContent());
+                    break;
                 case "break":
                     processBreak(bookInfo, node);
                     break;
@@ -188,7 +193,7 @@ public class Book {
                     break;
 
                 default:
-                    logger.info("default");
+                    logger.info("ignored");
                     break;
             }
         }
@@ -203,7 +208,7 @@ public class Book {
             chapterNumber = 0;
         }
         logger.info("Part [{}][{}]", partNumber, tocIndex);
-        
+
         String filename = String.format("pt%02d.html", partNumber);
         // part might have info node
         Info info = Info.findInfo(node, PART, partNumber);

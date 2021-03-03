@@ -11,10 +11,9 @@
     <text>$bookTitle</text>
   </docTitle>
   <navMap>
-    <navPoint class="chapter" id="navPoint-1" playOrder="1">
+    <navPoint class="book" id="navPoint-1" playOrder="1">
       <navLabel>
         <text>$bookTitle</text>
       </navLabel>
       <content src="title_page.html"/>
     </navPoint>
-    <!-- end of toc header -->
