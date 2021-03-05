@@ -3,7 +3,7 @@
   <metadata xmlns:opf="http://www.idpf.org/2007/opf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
     <dc:title>${book.title}</dc:title>
     <dc:language>en</dc:language>
-    <dc:identifier id="book_id" opf:scheme="uuid">${uid}</dc:identifier>
+    <dc:identifier id="book_id" opf:scheme="uuid">${book.uid}</dc:identifier>
     <dc:creator opf:role="aut">${book.author}</dc:creator>
     <dc:date>${book.date}</dc:date>
     <meta name="cover" content="cover-image"/>

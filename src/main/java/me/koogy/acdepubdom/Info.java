@@ -35,6 +35,7 @@ public class Info {
     private Map<String, String> options = new HashMap();
     private String numbering;  // number string, like "Part I" or "Chapter The First" // TODO
     private String contents;
+    private String uid;
 
     public Info(int type, int number) {
         setDefaults();
@@ -79,7 +80,7 @@ public class Info {
         setNumbering(type, number);
     }
 
-    void setDefaults() {
+    final void setDefaults() {
         options.put(PART_TITLE_ENABLED_PROPERTY,    "true");
         options.put(PART_TITLE_TEXT_PROPERTY,       "Part");
         options.put(PART_NUMBER_STYLE_PROPERTY,     "I");
@@ -90,7 +91,7 @@ public class Info {
         options.put(CHAPTER_NUMBERS_CONTINUOUS,     "false");
     }
 
-    void setNumbering(int type, int number) {
+    final void setNumbering(int type, int number) {
         switch (type) {
             case Book.PART:
                 numbering = Numbers.numbering(options.get(PART_TITLE_TEXT_PROPERTY), options.get(PART_NUMBER_STYLE_PROPERTY), number);
@@ -154,6 +155,14 @@ public class Info {
 
     public void setContents(String contents) {
         this.contents = contents;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getOption(String optionName) {

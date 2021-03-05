@@ -1,18 +1,10 @@
 package me.koogy.acdepubdom;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -31,8 +23,7 @@ public class Book {
     public static final int APPENDIX        = 6;
     public static final int FOOTNOTE        = 7;
 
-    private static final String TOC_FILE = "toc.ncx";
-    private static final String TOC_TMPL = "toc.vm";
+    public static final String TOC_FILE = "toc.ncx";
     private static final String CONTENT_FILE = "content.opf";
     private static final String CONTENT_TMPL = "content.vm";
     private static final String TITLE_FILE = "title_page.html";
@@ -42,46 +33,40 @@ public class Book {
 
     public static final Logger logger = LoggerFactory.getLogger(Book.class);
 
-    File directory;
     int tocIndex = 1;   // titlepage means this starts at 1
     int partNumber;
     int chapterNumber;
     StringBuilder contents = new StringBuilder();
-    Writer tocWriter;
     Writer contentWriter;
     String uid = UUID.randomUUID().toString();
     List<String> items = new ArrayList<>();
+    Template template;
+    Toc toc;
 
     public Book(String filename, Element root) throws Exception {
 
         // clear out and create working directory
-        directory = makeTempDirectory(filename);
+        File directory = makeTempDirectory(filename);
         logger.info("Directory [{}]", directory);
-        tocWriter = new FileWriter(new File(directory, TOC_FILE));
-
-        // setup velocity
-        VelocityEngine velocity = new VelocityEngine();
-        Properties p = new Properties();
-        p.setProperty("resource.loaders", "class");
-        p.setProperty("resource.loader.class.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        Velocity.init(p);
 
         // parse book info
         Info bookInfo = Info.findInfo(root, BOOK, 0);
+        bookInfo.setUid(uid);
         logger.info("Info [{}]", bookInfo);
-        initToc(bookInfo.getTitle(), uid);
+        template = new Template(directory, bookInfo);
+        toc = new Toc(bookInfo, directory);
 
         // Title Page
-        writeTemplate(TITLE_TMPL, "title_page.html", bookInfo);
+        template.write(TITLE_TMPL, "title_page.html", bookInfo);
 
         NodeList nodeList = root.getChildNodes();
         logger.info("Nodes [{}]", nodeList.getLength());
         process(bookInfo, nodeList);
 
-        closeToc();
+        toc.close();
         close();
 
-        writeTemplate(CONTENT_TMPL, "content.opf", bookInfo, null, items);
+        template.write(CONTENT_TMPL, "content.opf", null, items);
     }
 
     private final void process(Info bookInfo, NodeList nodes) {
@@ -219,12 +204,12 @@ public class Book {
         items.add(filename.replaceFirst(".html", ""));
         // part might have info node
         Info info = Info.findInfo(node, PART, partNumber);
-        writeTemplate(PART_TMPL, filename, bookInfo, info);
-        startToc(info.getTitle(), "part", filename);
+        template.write(PART_TMPL, filename, info);
+        toc.start(info.getTitle(), "part", filename, tocIndex);
 
         process(bookInfo, node.getChildNodes());
 
-        endToc();
+        toc.end();
         logger.info("Part [{}][{}] done", partNumber, tocIndex);
     }
 
@@ -237,13 +222,13 @@ public class Book {
         items.add(filename.replaceFirst(".html", ""));
         // chapter may have info node (is this true? epilogue?)
         Info info = Info.findInfo(node, type, chapterNumber);
-        startToc(info.getTitle(), "chapter", filename);
+        toc.start(info.getTitle(), "chapter", filename, tocIndex);
 
         process(bookInfo, node.getChildNodes());
 
-        endToc();
+        toc.end();
         info.setContents(contents.toString());
-        writeTemplate(CHAPTER_TMPL, filename, bookInfo, info);
+        template.write(CHAPTER_TMPL, filename, info);
         logger.info("Chapter done");
     }
 
@@ -285,7 +270,7 @@ public class Book {
         add("</span>");
     }
 
-    // cpnvenience method to append to contents
+    // convenience method to append to contents
     void add(String s) {
         contents.append(s);
     }
@@ -314,45 +299,6 @@ public class Book {
     
     final void close() {
         logger.info("Closing...");
-    }
-
-    /*
-    ** Expand the given template into given file, with the relevant info
-    */
-    void writeTemplate(String templateName, String filename, Info bookInfo) {
-        writeTemplate(templateName, filename, bookInfo, null);
-    }
-    void writeTemplate(String templateName, String filename, Info bookInfo, Info info) {
-        writeTemplate(templateName, filename, bookInfo, info, null);
-    }
-    void writeTemplate(String templateName, String filename, Info bookInfo, Info info, List<String> items) {
-        Writer writer = null;
-        VelocityContext context = new VelocityContext();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        context.put("date", format.format(new Date()));
-        context.put("book", bookInfo);
-        if (info != null) {
-            context.put("info", info);
-        }
-        if (items != null) {
-            context.put("items", items);
-        }
-        context.put("uid", uid);
-
-        try {
-            writer = new FileWriter(new File(directory, filename));
-            Velocity.mergeTemplate("velocity" + File.separator + templateName, "UTF-8", context, writer);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            logger.error("Error: ", e);
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                logger.error("Error: ", e);
-            }
-        }
     }
 
     // temp directory based on name of input file
@@ -404,27 +350,5 @@ public class Book {
             output.append("</span>");
         }
         return output.toString();
-    }
-
-    VelocityContext tocContext = new VelocityContext();
-    void initToc(String bookTitle, String uid) {
-        tocContext.put("bookTitle", bookTitle);
-        tocContext.put("uid", uid);
-        Velocity.mergeTemplate("velocity" + File.separator + "toc_header.vm", "UTF-8", tocContext, tocWriter);
-    }
-    void startToc(String title, String cls, String filename) {
-        tocContext.put("title", title);
-        tocContext.put("class", cls);
-        tocContext.put("filename", filename);
-        tocContext.put("index", tocIndex);
-        Velocity.mergeTemplate("velocity" + File.separator + "toc_entry_start.vm", "UTF-8", tocContext, tocWriter);
-    }
-    void endToc() {
-        tocContext.put("index", tocIndex);
-        Velocity.mergeTemplate("velocity" + File.separator + "toc_entry_end.vm", "UTF-8", tocContext, tocWriter);
-    }
-    void closeToc() throws Exception {
-        Velocity.mergeTemplate("velocity" + File.separator + "toc_footer.vm", "UTF-8", tocContext, tocWriter);
-        tocWriter.close();
     }
 }
