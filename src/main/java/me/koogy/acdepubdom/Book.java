@@ -2,10 +2,13 @@ package me.koogy.acdepubdom;
 
 import java.io.File;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.activation.MimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -31,6 +34,7 @@ public class Book {
     private static final String CONTENT_TMPL = "content.vm";
     private static final String COVER_FILE = "cover.xhtml";
     private static final String COVER_TMPL = "cover.vm";
+    private static final String COVER_IMAGE_FILE = "cover-image.jpg";
     private static final String TITLE_FILE = "title_page.xhtml";
     private static final String TITLE_TMPL = "title_page.vm";
     private static final String MIMETYPE_FILE = "mimetype";
@@ -80,6 +84,9 @@ public class Book {
         template.write(MIMETYPE_TMPL, MIMETYPE_FILE);
         template.write(STYLESHEET_TMPL, STYLESHEET_FILE);
         template.write(TITLE_TMPL, TITLE_FILE, bookInfo);
+        // copy image over
+        String srcDir = Paths.get(filename).getParent().toString();
+        copy(srcDir, directory.toString(), COVER_IMAGE_FILE);
         Zipper.write(directory, filename);
     }
 
@@ -373,5 +380,12 @@ public class Book {
             output.append("</span>");
         }
         return output.toString();
+    }
+
+    void copy(String srcDirectory, String dstDirectory, String filename) throws Exception {
+        Path src = Paths.get(srcDirectory, filename);
+        Path dst = Paths.get(dstDirectory, filename);
+        logger.info("Copying [{}] to [{}]", src, dst);
+        Files.copy(src, dst, StandardCopyOption.REPLACE_EXISTING);
     }
 }

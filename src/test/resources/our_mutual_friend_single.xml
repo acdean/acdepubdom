@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <book>
+<!-- ignoring namespaces, still validates. -->
 <!--xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       xmlns="http://www.koogy.clara.co.uk"
       xsi:schemaLocation="http://www.koogy.clara.co.uk acdepub.xsd">-->
