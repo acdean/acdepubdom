@@ -11,11 +11,11 @@
   <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="css" href="stylesheet.css" media-type="text/css"/>
-    <item id="cover" href="cover.html" media-type="application/xhtml+xml"/>
+    <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
     <item id="cover-image" href="cover-image.jpg" media-type="image/jpeg"/>
-    <item id="title_page" href="title_page.html" media-type="application/xhtml+xml"/>
+    <item id="title_page" href="title_page.xhtml" media-type="application/xhtml+xml"/>
 #foreach( $item in $items )
-    <item id="${item}" href="${item}.html" media-type="application/xhtml+xml"/>
+    <item id="${item}" href="${item}.xhtml" media-type="application/xhtml+xml"/>
 #end
   </manifest>
   <spine toc="ncx">

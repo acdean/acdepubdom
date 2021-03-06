@@ -15,5 +15,5 @@
       <navLabel>
         <text>${book.title}</text>
       </navLabel>
-      <content src="title_page.html"/>
+      <content src="title_page.xhtml"/>
     </navPoint>

@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.activation.MimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -24,11 +25,20 @@ public class Book {
     public static final int FOOTNOTE        = 7;
 
     public static final String TOC_FILE = "toc.ncx";
+    private static final String CONTAINER_FILE = "META-INF/container.xml";
+    private static final String CONTAINER_TMPL = "container.vm";
     private static final String CONTENT_FILE = "content.opf";
     private static final String CONTENT_TMPL = "content.vm";
-    private static final String TITLE_FILE = "title_page.html";
-    private static final String CHAPTER_TMPL = "chapter.vm";
+    private static final String COVER_FILE = "cover.xhtml";
+    private static final String COVER_TMPL = "cover.vm";
+    private static final String TITLE_FILE = "title_page.xhtml";
     private static final String TITLE_TMPL = "title_page.vm";
+    private static final String MIMETYPE_FILE = "mimetype";
+    private static final String MIMETYPE_TMPL = "mimetype.vm";
+    private static final String STYLESHEET_FILE = "stylesheet.css";
+    private static final String STYLESHEET_TMPL = "stylesheet.vm";
+
+    private static final String CHAPTER_TMPL = "chapter.vm";
     private static final String PART_TMPL = "part.vm";
 
     public static final Logger logger = LoggerFactory.getLogger(Book.class);
@@ -56,9 +66,6 @@ public class Book {
         template = new Template(directory, bookInfo);
         toc = new Toc(bookInfo, directory);
 
-        // Title Page
-        template.write(TITLE_TMPL, "title_page.html", bookInfo);
-
         NodeList nodeList = root.getChildNodes();
         logger.info("Nodes [{}]", nodeList.getLength());
         process(bookInfo, nodeList);
@@ -66,7 +73,14 @@ public class Book {
         toc.close();
         close();
 
-        template.write(CONTENT_TMPL, "content.opf", null, items);
+        // write all the other bits, zip into final epub
+        template.write(CONTAINER_TMPL, CONTAINER_FILE);
+        template.write(CONTENT_TMPL, CONTENT_FILE, null, items);
+        template.write(COVER_TMPL, COVER_FILE);
+        template.write(MIMETYPE_TMPL, MIMETYPE_FILE);
+        template.write(STYLESHEET_TMPL, STYLESHEET_FILE);
+        template.write(TITLE_TMPL, TITLE_FILE, bookInfo);
+        Zipper.write(directory, filename);
     }
 
     private final void process(Info bookInfo, NodeList nodes) {
@@ -166,7 +180,7 @@ public class Book {
                 case "poem3":
                 case "poem4":
                 case "poem5":
-                    processP(bookInfo, node, nodeName);
+                    processDiv(bookInfo, node, nodeName);
                     break;
 
                 // play bits
@@ -200,8 +214,8 @@ public class Book {
         }
         logger.info("Part [{}][{}]", partNumber, tocIndex);
 
-        String filename = String.format("pt%02d.html", partNumber);
-        items.add(filename.replaceFirst(".html", ""));
+        String filename = filenameFromType(Book.PART, partNumber);
+        items.add(filename.replaceFirst(".xhtml", ""));
         // part might have info node
         Info info = Info.findInfo(node, PART, partNumber);
         template.write(PART_TMPL, filename, info);
@@ -219,11 +233,14 @@ public class Book {
         logger.info("Chapter[{}][{}][{}] type[{}]", partNumber, chapterNumber, tocIndex, type);
         String filename = filenameFromType(type, chapterNumber);
         File f = new File(filename);
-        items.add(filename.replaceFirst(".html", ""));
+        items.add(filename.replaceFirst(".xhtml", ""));
+        // clear contents
+        contents = new StringBuilder();
         // chapter may have info node (is this true? epilogue?)
         Info info = Info.findInfo(node, type, chapterNumber);
         toc.start(info.getTitle(), "chapter", filename, tocIndex);
 
+        // process all children into contents
         process(bookInfo, node.getChildNodes());
 
         toc.end();
@@ -236,7 +253,7 @@ public class Book {
         add("<p><br /></p>\n");
     }
     void processHr(Info bookInfo, Node node) {
-        add("<div class='hr'>~</div>\n");
+        add("<div class=\"hr\">~</div>\n");
     }
     void processP(Info bookInfo, Node node) {
         add("<p>");
@@ -255,17 +272,17 @@ public class Book {
         add("</" + tag + ">");
     }
     void processP(Info bookInfo, Node node, String css) {
-        add("<p class='" + css + "'>");
+        add("<p class=\"" + css + "\">");
         process(bookInfo, node.getChildNodes());
         add("</p>\n");
     }
     void processDiv(Info bookInfo, Node node, String css) {
-        add("<div class='" + css + "'>");
+        add("<div class=\"" + css + "\">");
         process(bookInfo, node.getChildNodes());
-        add("</div>");
+        add("</div>\n");
     }
     void processSpan(Info bookInfo, Node node, String css) {
-        add("<span class='" + css + "'>");
+        add("<span class=\"" + css + "\">");
         process(bookInfo, node.getChildNodes());
         add("</span>");
     }
@@ -279,19 +296,22 @@ public class Book {
         String filename = null;
         switch (type) {
             case PREFIX:
-                filename = String.format("pre%03d.html", index);
+                filename = String.format("pre%03d.xhtml", index);
+                break;
+            case PART:
+                filename = String.format("pt%02d.xhtml", partNumber);
                 break;
             case PART_CHAPTER:
-                filename = String.format("ch%02d%03d.html", partNumber, index);
+                filename = String.format("ch%02d%03d.xhtml", partNumber, index);
                 break;
             case CHAPTER:
-                filename = String.format("ch%03d.html", index);
+                filename = String.format("ch%03d.xhtml", index);
                 break;
             case APPENDIX:
-                filename = String.format("app%03d.html", index);
+                filename = String.format("app%03d.xhtml", index);
                 break;
             case FOOTNOTE:
-                filename = String.format("notes%03d.html", index);
+                filename = String.format("notes%03d.xhtml", index);
                 break;
         }
         return filename;
@@ -313,6 +333,9 @@ public class Book {
             logger.debug("Deleting: {}", ls);
             ls.delete();
         }
+        // also need a meta-inf subdir
+        File metadir = new File(dir, "META-INF");
+        metadir.mkdirs();
         return dir;
     }
 
