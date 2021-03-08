@@ -79,6 +79,10 @@ public class Info {
             }
         }
         setNumbering(type, number);
+        if (tocTitle.isEmpty()) {
+            // use title as toctitle
+            tocTitle = title;
+        }
     }
 
     final void setDefaults() {

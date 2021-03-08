@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="book_id" version="2.0">
   <metadata xmlns:opf="http://www.idpf.org/2007/opf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
-    <dc:title>${book.title}</dc:title>
+    <dc:title>${book.tocTitle}</dc:title>
     <dc:language>en</dc:language>
     <dc:identifier id="book_id" opf:scheme="uuid">${book.uid}</dc:identifier>
     <dc:creator opf:role="aut">${book.author}</dc:creator>

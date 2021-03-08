@@ -8,12 +8,12 @@
     <meta name="cover" content="cover-image"/>
   </head>
   <docTitle>
-    <text>${book.title}</text>
+    <text>${book.tocTitle}</text>
   </docTitle>
   <navMap>
     <navPoint class="book" id="navPoint-1" playOrder="1">
       <navLabel>
-        <text>${book.title}</text>
+        <text>${book.tocTitle}</text>
       </navLabel>
       <content src="title_page.xhtml"/>
     </navPoint>
