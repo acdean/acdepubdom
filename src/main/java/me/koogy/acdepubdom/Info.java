@@ -79,7 +79,7 @@ public class Info {
             }
         }
         setNumbering(type, number);
-        if (tocTitle.isEmpty()) {
+        if (tocTitle == null || tocTitle.isEmpty()) {
             // use title as toctitle
             tocTitle = title;
         }
