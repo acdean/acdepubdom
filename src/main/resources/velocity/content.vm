@@ -11,15 +11,19 @@
   <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="css" href="stylesheet.css" media-type="text/css"/>
+#if(${book.hasImage})
     <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
     <item id="cover-image" href="cover-image.jpg" media-type="image/jpeg"/>
+#end
     <item id="title_page" href="title_page.xhtml" media-type="application/xhtml+xml"/>
 #foreach( $item in $items )
     <item id="${item}" href="${item}.xhtml" media-type="application/xhtml+xml"/>
 #end
   </manifest>
   <spine toc="ncx">
+#if(${book.hasImage})
     <itemref idref="cover" linear="no"/>
+#end
     <itemref idref="title_page"/>
 #foreach( $item in $items )
     <itemref idref="${item}"/>

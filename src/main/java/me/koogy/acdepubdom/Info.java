@@ -36,6 +36,7 @@ public class Info {
     private String numbering;  // number string, like "Part I" or "Chapter The First" // TODO
     private String contents;
     private String uid;
+    private boolean hasImage = false;
 
     public Info(int type, int number) {
         setDefaults();
@@ -163,6 +164,14 @@ public class Info {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public boolean hasImage() {
+        return hasImage;
+    }
+
+    public void hasImage(boolean hasImage) {
+        this.hasImage = hasImage;
     }
 
     public String getOption(String optionName) {

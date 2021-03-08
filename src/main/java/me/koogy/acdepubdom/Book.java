@@ -66,6 +66,10 @@ public class Book {
         // parse book info
         Info bookInfo = Info.findInfo(root, BOOK, 0);
         bookInfo.setUid(uid);
+        File imageFile = new File(directory, COVER_IMAGE_FILE);
+        if (imageFile.exists()) {
+            bookInfo.hasImage(true);
+        }
         logger.info("Info [{}]", bookInfo);
         template = new Template(directory, bookInfo);
         toc = new Toc(bookInfo, directory);
@@ -80,13 +84,15 @@ public class Book {
         // write all the other bits, zip into final epub
         template.write(CONTAINER_TMPL, CONTAINER_FILE);
         template.write(CONTENT_TMPL, CONTENT_FILE, null, items);
-        template.write(COVER_TMPL, COVER_FILE);
         template.write(MIMETYPE_TMPL, MIMETYPE_FILE);
         template.write(STYLESHEET_TMPL, STYLESHEET_FILE);
         template.write(TITLE_TMPL, TITLE_FILE, bookInfo);
-        // copy image over
-        String srcDir = Paths.get(filename).getParent().toString();
-        copy(srcDir, directory.toString(), COVER_IMAGE_FILE);
+        if (bookInfo.hasImage()) {
+            template.write(COVER_TMPL, COVER_FILE);
+            // copy image over
+            String srcDir = Paths.get(filename).getParent().toString();
+            copy(srcDir, directory.toString(), COVER_IMAGE_FILE);
+        }
         Zipper.write(directory, filename);
     }
 
