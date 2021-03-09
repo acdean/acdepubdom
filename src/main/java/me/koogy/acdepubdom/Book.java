@@ -111,7 +111,8 @@ public class Book {
                         logger.info("TEXT[{}]", node.getTextContent());
                     }
                     String txt = node.getTextContent()
-                            .replaceAll("--", "—")  // mdash
+                            .replaceAll("--", "—")      // mdash
+                            .replaceAll("&", "&amp;")   // ampersand
                             ;
                     add(txt);   // mdash
                     break;
@@ -266,8 +267,8 @@ public class Book {
         toc.end();
 
         // fix the ampersands (more?)
-        String str = Pattern.compile("&").matcher(contents).replaceAll("&amp;");
-        info.setContents(str);
+        //String str = Pattern.compile("&").matcher(contents).replaceAll("&amp;");
+        info.setContents(contents.toString());
         template.write(CHAPTER_TMPL, filename, info);
         logger.info("Chapter done");
     }
