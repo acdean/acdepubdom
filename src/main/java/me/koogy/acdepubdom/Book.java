@@ -9,6 +9,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -197,6 +198,12 @@ public class Book {
                     break;
 
                 // play bits
+                case "personae":
+                    processTag(bookInfo, node, "dl");
+                    break;
+                case "person":
+                    processPerson(bookInfo, node);
+                    break;
                 case "direction":
                     processSpan(bookInfo, node, "direction");
                     break;
@@ -257,7 +264,10 @@ public class Book {
         process(bookInfo, node.getChildNodes());
 
         toc.end();
-        info.setContents(contents.toString());
+
+        // fix the ampersands (more?)
+        String str = Pattern.compile("&").matcher(contents).replaceAll("&amp;");
+        info.setContents(str);
         template.write(CHAPTER_TMPL, filename, info);
         logger.info("Chapter done");
     }
@@ -298,6 +308,16 @@ public class Book {
         add("<span class=\"" + css + "\">");
         process(bookInfo, node.getChildNodes());
         add("</span>");
+    }
+    // handle person tabs, inclding attributes - as dt / dd pairs
+    // <person name="Elfride Swancourt" description="a young Lady"/>
+    void processPerson(Info bookInfo, Node node) {
+        add("<dt>");
+        add(node.getAttributes().getNamedItem("name").getTextContent());
+        add("</dt>");
+        add("<dd>");
+        add(node.getAttributes().getNamedItem("description").getTextContent());
+        add("</dd>\n");
     }
 
     // convenience method to append to contents

@@ -71,6 +71,7 @@
       <xs:choice maxOccurs="unbounded">
         <xs:element ref="sc" minOccurs="0"/>
         <xs:element ref="em" minOccurs="0"/>
+        <xs:element ref="smallcaps" minOccurs="0"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -85,6 +86,14 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="center" substitutionGroup="centre"/>
+
+  <xs:element name="personae">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="person" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="person">
     <xs:complexType>
@@ -120,6 +129,7 @@
         <xs:element ref="poem" maxOccurs="unbounded"/>
         <xs:element ref="right" maxOccurs="unbounded"/>
         <xs:element ref="section" maxOccurs="unbounded"/>
+        <xs:element ref="personae" maxOccurs="unbounded"/>
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="title"/>
@@ -169,17 +179,17 @@
   <xs:element name="direction" type="xs:string"/>
 
   <xs:element name="poem">
-      <xs:complexType>
-          <xs:sequence>
-              <xs:choice maxOccurs="unbounded">
-                  <xs:element ref="poem1" minOccurs="0" maxOccurs="unbounded"/>
-                  <xs:element ref="poem2" minOccurs="0" maxOccurs="unbounded"/>
-                  <xs:element ref="poem3" minOccurs="0" maxOccurs="unbounded"/>
-                  <xs:element ref="poem4" minOccurs="0" maxOccurs="unbounded"/>
-                  <xs:element ref="poem5" minOccurs="0" maxOccurs="unbounded"/>
-              </xs:choice>
-          </xs:sequence>
-      </xs:complexType>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="poem1" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="poem2" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="poem3" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="poem4" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="poem5" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
   </xs:element>
   <xs:element name="poem1" type="xs:string"/>
   <xs:element name="poem2" type="xs:string"/>
@@ -189,17 +199,18 @@
 
   <!-- letters are wrappers like p -->
   <xs:element name="letter">
-      <xs:complexType>
-          <xs:sequence>
-              <xs:choice maxOccurs="unbounded">
-                  <xs:element ref="p" minOccurs="0" maxOccurs="unbounded"/>
-                  <xs:element ref="right" minOccurs="0" maxOccurs="unbounded"/>
-                  <xs:element ref="p2" minOccurs="0" maxOccurs="unbounded"/>
-                  <xs:element ref="p3" minOccurs="0" maxOccurs="unbounded"/>
-                  <xs:element ref="break" minOccurs="0" maxOccurs="unbounded"/>
-              </xs:choice>
-          </xs:sequence>
-      </xs:complexType>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="p" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="right" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="p2" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="p3" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="break" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="centre" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
   </xs:element>
 
 </xs:schema>
