@@ -98,17 +98,17 @@ public class Book {
     }
 
     private final void process(Info bookInfo, NodeList nodes) {
-        logger.info("Processing...");
+        //logger.info("Processing...");
         String nodeName;
         for (int i = 0 ; i < nodes.getLength() ; i++) {
             logger.info("Index [{}]", i);
             Node node = nodes.item(i);
             nodeName = node.getNodeName().toLowerCase();
-            logger.info("NodeName [{}]", nodeName);
+            //logger.info("NodeName [{}]", nodeName);
             switch(nodeName) {
                 case "#text":
                     if (!node.getTextContent().trim().isEmpty()) {
-                        logger.info("TEXT[{}]", node.getTextContent());
+                        //logger.info("TEXT[{}]", node.getTextContent());
                     }
                     String txt = node.getTextContent()
                             .replaceAll("--", "—")      // mdash
@@ -223,7 +223,7 @@ public class Book {
                     break;
             }
         }
-        logger.info("Processed");
+        //logger.info("Processed");
     }
 
     void processPart(Info bookInfo, Node node) {

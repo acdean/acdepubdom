@@ -37,15 +37,18 @@ public class Info {
     private String contents;
     private String uid;
     private boolean hasImage = false;
+    private int type;
 
     public Info(int type, int number) {
         setDefaults();
+        this.type = type;
         setNumbering(type, number);
     }
 
     // this is an info node
     public Info(Node infoNode, int type, int number) {
         setDefaults();
+        this.type = type;
         NodeList nodes = infoNode.getChildNodes();
         for (int i = 0 ; i < nodes.getLength() ; i++) {
             Node node = nodes.item(i);
@@ -187,6 +190,17 @@ public class Info {
         return info.options.get(optionName);
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public boolean getNormal() {
+        if (type == Book.CHAPTER || type == Book.PART_CHAPTER) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "Info{"
@@ -196,6 +210,7 @@ public class Info {
                 + ", subtitle=" + subtitle
                 + ", date=" + date
                 + ", options=" + options
+                + ", type=" + type
                 + "}";
     }
 
