@@ -51,6 +51,8 @@ public class Book {
     int tocIndex = 1;   // titlepage means this starts at 1
     int partNumber;
     int chapterNumber;
+    int prefixNumber;
+    int appendixNumber;
     StringBuilder contents = new StringBuilder();
     Writer contentWriter;
     String uid = UUID.randomUUID().toString();
@@ -120,7 +122,7 @@ public class Book {
                     processPart(bookInfo, node);
                     break;
                 case "prefix":
-                    processChapter(bookInfo, node, PREFIX);
+                    processPrefix(bookInfo, node);
                     break;
                 case "act":
                     processChapter(bookInfo, node, ACT);
@@ -134,7 +136,7 @@ public class Book {
                     }
                     break;
                 case "appendix":
-                    processChapter(bookInfo, node, APPENDIX);
+                    processAppendix(bookInfo, node);
                     break;
 
                 /*
@@ -248,17 +250,29 @@ public class Book {
         logger.info("Part [{}][{}] done", partNumber, tocIndex);
     }
 
+    // prefix and appendix are numbered differently, everything else uses chapter numbers
+    void processPrefix(Info bookInfo, Node node) {
+        prefixNumber++;
+        processChapter(bookInfo, node, PREFIX, prefixNumber);
+    }
+    void processAppendix(Info bookInfo, Node node) {
+        appendixNumber++;
+        processChapter(bookInfo, node, APPENDIX, appendixNumber);
+    }
     void processChapter(Info bookInfo, Node node, int type) {
         chapterNumber++;
+        processChapter(bookInfo, node, type, chapterNumber);
+    }
+    void processChapter(Info bookInfo, Node node, int type, int number) {
         tocIndex++;
-        logger.info("Chapter[{}][{}][{}] type[{}]", partNumber, chapterNumber, tocIndex, type);
-        String filename = filenameFromType(type, chapterNumber);
+        logger.info("Chapter[{}][{}][{}] type[{}]", partNumber, number, tocIndex, type);
+        String filename = filenameFromType(type, number);
         File f = new File(filename);
         items.add(filename.replaceFirst(".xhtml", ""));
         // clear contents
         contents = new StringBuilder();
         // chapter may have info node (is this true? epilogue?)
-        Info info = Info.findInfo(node, type, chapterNumber);
+        Info info = Info.findInfo(node, type, number);
         toc.start(info.getTitle(), "chapter", filename, tocIndex);
 
         // process all children into contents
