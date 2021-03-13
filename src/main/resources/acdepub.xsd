@@ -58,12 +58,14 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="p0" substitutionGroup="p"/>
+  <xs:element name="p1" substitutionGroup="p"/>
+  <xs:element name="p2" substitutionGroup="p"/>
+  <xs:element name="p3" substitutionGroup="p"/>
+  <xs:element name="footnote" substitutionGroup="p"/>
 
   <xs:element name="i" type="xs:string"/>
   <xs:element name="em" type="xs:string"/>
   <xs:element name="sc" type="xs:string"/>
-  <xs:element name="p2" type="xs:string"/>
-  <xs:element name="p3" type="xs:string"/>
   <xs:element name="smallcaps" type="xs:string"/>
 
   <xs:element name="right">
@@ -103,6 +105,7 @@
   </xs:element>
 
   <!-- parts are full of chapters -->
+  <!-- and can have title or info children and a title attribute -->
   <xs:element name="part">
     <xs:complexType>
       <xs:sequence>
@@ -114,6 +117,7 @@
   </xs:element>
 
   <!-- chapters mostly full of paragraphs -->
+  <!-- and can have title or info children and a title attribute -->
   <xs:complexType name="chapterType">
     <xs:sequence>
       <xs:choice>
@@ -204,8 +208,6 @@
         <xs:choice maxOccurs="unbounded">
           <xs:element ref="p" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element ref="right" minOccurs="0" maxOccurs="unbounded"/>
-          <xs:element ref="p2" minOccurs="0" maxOccurs="unbounded"/>
-          <xs:element ref="p3" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element ref="break" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element ref="centre" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
