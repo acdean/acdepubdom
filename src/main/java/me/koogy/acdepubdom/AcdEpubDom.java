@@ -20,8 +20,7 @@ import org.xml.sax.SAXParseException;
 public class AcdEpubDom {
 
     private static final Logger LOG = LoggerFactory.getLogger(AcdEpubDom.class);
-    //private static final String XSD_FILENAME = "src/main/resources/acdepub.xsd";
-    private static final String XSD_FILENAME = "acdepub.xsd";
+    private static final String XSD_FILENAME = "schema/acdepub.xsd";
 
     public static void main(String[] args) throws Exception {
 
