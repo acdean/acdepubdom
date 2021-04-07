@@ -54,6 +54,7 @@
         <xs:element ref="title" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="sc" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="smallcaps" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="note" minOccurs="0" maxOccurs="unbounded"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -67,6 +68,7 @@
   <xs:element name="em" type="xs:string"/>
   <xs:element name="sc" type="xs:string"/>
   <xs:element name="smallcaps" type="xs:string"/>
+  <xs:element name="note" type="xs:string"/>
 
   <xs:element name="right">
     <xs:complexType mixed="true">

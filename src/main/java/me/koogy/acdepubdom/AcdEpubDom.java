@@ -4,6 +4,7 @@ import java.io.File;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -19,7 +20,8 @@ import org.xml.sax.SAXParseException;
 public class AcdEpubDom {
 
     private static final Logger LOG = LoggerFactory.getLogger(AcdEpubDom.class);
-    private static final String XSD_FILENAME = "src/main/resources/acdepub.xsd";
+    //private static final String XSD_FILENAME = "src/main/resources/acdepub.xsd";
+    private static final String XSD_FILENAME = "acdepub.xsd";
 
     public static void main(String[] args) throws Exception {
 
@@ -32,7 +34,8 @@ public class AcdEpubDom {
             File xmlFile = new File(filename);
 
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = schemaFactory.newSchema(new File(XSD_FILENAME));
+            Source schemaSource = new StreamSource(AcdEpubDom.class.getClassLoader().getResourceAsStream(XSD_FILENAME));
+            Schema schema = schemaFactory.newSchema(schemaSource);
 
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(xmlFile));
