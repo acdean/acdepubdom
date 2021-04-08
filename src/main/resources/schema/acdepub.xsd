@@ -62,7 +62,15 @@
   <xs:element name="p1" substitutionGroup="p"/>
   <xs:element name="p2" substitutionGroup="p"/>
   <xs:element name="p3" substitutionGroup="p"/>
-  <xs:element name="footnote" substitutionGroup="p"/>
+
+  <!-- footnotes are currently just paragraphs -->
+  <xs:element name="footnote">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="p" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="i" type="xs:string"/>
   <xs:element name="em" type="xs:string"/>
@@ -136,6 +144,7 @@
         <xs:element ref="right" maxOccurs="unbounded"/>
         <xs:element ref="section" maxOccurs="unbounded"/>
         <xs:element ref="personae" maxOccurs="unbounded"/>
+        <xs:element ref="footnote" maxOccurs="unbounded"/>
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="title"/>
