@@ -12,6 +12,7 @@
           <xs:element ref="chapter" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element ref="act" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element ref="appendix" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="footnote" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -144,7 +145,6 @@
         <xs:element ref="right" maxOccurs="unbounded"/>
         <xs:element ref="section" maxOccurs="unbounded"/>
         <xs:element ref="personae" maxOccurs="unbounded"/>
-        <xs:element ref="footnote" maxOccurs="unbounded"/>
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="title"/>

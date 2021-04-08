@@ -9,7 +9,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -36,6 +35,8 @@ public class Book {
     private static final String COVER_FILE = "cover.xhtml";
     private static final String COVER_TMPL = "cover.vm";
     private static final String COVER_IMAGE_FILE = "cover-image.jpg";
+    private static final String FOOTNOTES_TMPL = "footnotes.vm";
+    private static final String FOOTNOTES_FILE = "footnotes.xhtml";
     private static final String TITLE_FILE = "title_page.xhtml";
     private static final String TITLE_TMPL = "title_page.vm";
     private static final String MIMETYPE_FILE = "mimetype";
@@ -59,6 +60,8 @@ public class Book {
     List<String> items = new ArrayList<>();
     Template template;
     Toc toc;
+    List<String> footnotes = new ArrayList<>();
+    int footnote = 0;
 
     public Book(String filename, Element root) throws Exception {
 
@@ -90,6 +93,9 @@ public class Book {
         template.write(MIMETYPE_TMPL, MIMETYPE_FILE);
         template.write(STYLESHEET_TMPL, STYLESHEET_FILE);
         template.write(TITLE_TMPL, TITLE_FILE, bookInfo);
+        if (footnotes.size() != 0) {
+            template.write(FOOTNOTES_TMPL, FOOTNOTES_FILE, null, footnotes);
+        }
         if (bookInfo.hasImage()) {
             template.write(COVER_TMPL, COVER_FILE);
             // copy image over
@@ -103,7 +109,7 @@ public class Book {
         //logger.info("Processing...");
         String nodeName;
         for (int i = 0 ; i < nodes.getLength() ; i++) {
-            logger.info("Index [{}]", i);
+            //logger.info("Index [{}]", i);
             Node node = nodes.item(i);
             nodeName = node.getNodeName().toLowerCase();
             //logger.info("NodeName [{}]", nodeName);
@@ -220,6 +226,14 @@ public class Book {
                     processP(bookInfo, node, "p0 speech");
                     break;
 
+                // footnotes
+                case "note":
+                    processNote();
+                    break;
+                case "footnote":
+                    processFootnote(bookInfo, node);
+                    break;
+
                 default:
                     logger.info("ignored");
                     break;
@@ -333,6 +347,22 @@ public class Book {
         add("<dd>");
         add(node.getAttributes().getNamedItem("description").getTextContent());
         add("</dd>\n");
+    }
+
+    // a link to a footnote
+    void processNote() {
+        footnote++;
+        logger.info("Note [{}]", footnote);
+        add("<a href=\"" + FOOTNOTES_FILE + "#fn_" + footnote + "\">[note " + footnote + "]</a>");
+    }
+    // the footnote contents
+    void processFootnote(Info bookInfo, Node node) {
+        contents = new StringBuilder();
+        // recursively process all the children into contents
+        process(bookInfo, node.getChildNodes());
+        // and add those contents to the footnotes list
+        footnotes.add(contents.toString());
+        logger.info("Footnote [{}]: [{}]", footnotes.size(), node.getTextContent());
     }
 
     // convenience method to append to contents
