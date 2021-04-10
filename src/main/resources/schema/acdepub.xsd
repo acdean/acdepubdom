@@ -64,7 +64,7 @@
   <xs:element name="p2" substitutionGroup="p"/>
   <xs:element name="p3" substitutionGroup="p"/>
 
-  <!-- footnotes are currently just paragraphs -->
+  <!-- footnotes currently just contain paragraphs, but i have seen poems etc -->
   <xs:element name="footnote">
     <xs:complexType>
       <xs:sequence>
@@ -145,6 +145,7 @@
         <xs:element ref="right" maxOccurs="unbounded"/>
         <xs:element ref="section" maxOccurs="unbounded"/>
         <xs:element ref="personae" maxOccurs="unbounded"/>
+        <xs:element ref="footnote" maxOccurs="unbounded"/>
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="title"/>

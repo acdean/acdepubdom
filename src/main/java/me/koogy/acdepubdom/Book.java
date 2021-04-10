@@ -35,8 +35,6 @@ public class Book {
     private static final String COVER_FILE = "cover.xhtml";
     private static final String COVER_TMPL = "cover.vm";
     private static final String COVER_IMAGE_FILE = "cover-image.jpg";
-    private static final String FOOTNOTES_TMPL = "footnotes.vm";
-    private static final String FOOTNOTES_FILE = "footnotes.xhtml";
     private static final String TITLE_FILE = "title_page.xhtml";
     private static final String TITLE_TMPL = "title_page.vm";
     private static final String MIMETYPE_FILE = "mimetype";
@@ -60,7 +58,8 @@ public class Book {
     List<String> items = new ArrayList<>();
     Template template;
     Toc toc;
-    List<String> footnotes = new ArrayList<>();
+    // counts for footnote links and definitions
+    int note = 0;
     int footnote = 0;
 
     public Book(String filename, Element root) throws Exception {
@@ -93,9 +92,6 @@ public class Book {
         template.write(MIMETYPE_TMPL, MIMETYPE_FILE);
         template.write(STYLESHEET_TMPL, STYLESHEET_FILE);
         template.write(TITLE_TMPL, TITLE_FILE, bookInfo);
-        if (footnotes.size() != 0) {
-            template.write(FOOTNOTES_TMPL, FOOTNOTES_FILE, null, footnotes);
-        }
         if (bookInfo.hasImage()) {
             template.write(COVER_TMPL, COVER_FILE);
             // copy image over
@@ -226,7 +222,8 @@ public class Book {
                     processP(bookInfo, node, "p0 speech");
                     break;
 
-                // footnotes
+                // TODO footnotes are links within the current file
+                // that way it's easy to link back to the note
                 case "note":
                     processNote();
                     break;
@@ -279,6 +276,8 @@ public class Book {
     }
     void processChapter(Info bookInfo, Node node, int type, int number) {
         tocIndex++;
+        note = 0;
+        footnote = 0;
         logger.info("Chapter[{}][{}][{}] type[{}]", partNumber, number, tocIndex, type);
         String filename = filenameFromType(type, number);
         File f = new File(filename);
@@ -351,18 +350,26 @@ public class Book {
 
     // a link to a footnote
     void processNote() {
-        footnote++;
-        logger.info("Note [{}]", footnote);
-        add("<a href=\"" + FOOTNOTES_FILE + "#fn_" + footnote + "\">[note " + footnote + "]</a>");
+        note++;
+        logger.info("Note [{}]", note);
+        add("<a id=\"note_" + note + "\"/>");
+        add("<a href=\"#footnote_" + note + "\">[note " + note + "]</a>");
     }
     // the footnote contents
     void processFootnote(Info bookInfo, Node node) {
-        contents = new StringBuilder();
-        // recursively process all the children into contents
+        footnote++;
+        if (footnote == 1) {
+            // end of text, start of footnotes
+            add("<hr/>\n");
+        }
+        add("<div class=\"footnote\" id=\"footnote_" + footnote + "\">\n");
+        add("[Note " + footnote + "]\n");
+        // recursively process all the children
         process(bookInfo, node.getChildNodes());
-        // and add those contents to the footnotes list
-        footnotes.add(contents.toString());
-        logger.info("Footnote [{}]: [{}]", footnotes.size(), node.getTextContent());
+        logger.info("Footnote [{}]: [{}]", footnote, node.getTextContent());
+        // link back to anchor
+        add("<a href=\"#note_" + footnote + "\">[Back]</a>\n");
+        add("</div>");
     }
 
     // convenience method to append to contents
