@@ -1,5 +1,9 @@
     <navPoint class="${class}" id="navPoint-${index}" playOrder="${index}">
       <navLabel>
+#if (${title})
         <text>${title}</text>
+#else
+        <text></text>
+#end
       </navLabel>
       <content src="${filename}"/>
