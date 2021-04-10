@@ -153,6 +153,10 @@ public class Info {
         return options;
     }
 
+    /**
+     * Get the Numbering
+     * @return The numbering string for this item. ie "Chapter IV"
+     */
     public String getNumbering() {
         return numbering;
     }

@@ -253,7 +253,7 @@ public class Book {
         // part might have info node
         Info info = Info.findInfo(node, PART, partNumber);
         template.write(PART_TMPL, filename, info);
-        toc.start(info.getTitle(), "part", filename, tocIndex);
+        toc.start(info, "part", filename, tocIndex);
 
         process(bookInfo, node.getChildNodes());
 
@@ -286,7 +286,7 @@ public class Book {
         contents = new StringBuilder();
         // chapter may have info node (is this true? epilogue?)
         Info info = Info.findInfo(node, type, number);
-        toc.start(info.getTitle(), "chapter", filename, tocIndex);
+        toc.start(info, "chapter", filename, tocIndex);
 
         // process all children into contents
         process(bookInfo, node.getChildNodes());

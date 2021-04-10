@@ -25,8 +25,12 @@ public class Toc {
         merge("toc_header.vm");
     }
 
-    void start(String title, String cls, String filename, int tocIndex) {
-        tocContext.put("title", title);
+    void start(Info info, String cls, String filename, int tocIndex) {
+        if (info.getTitle() != null) {
+            tocContext.put("title", info.getTitle());
+        } else {
+            tocContext.put("title", info.getNumbering());
+        }
         tocContext.put("class", cls);
         tocContext.put("filename", filename);
         tocContext.put("index", tocIndex);
