@@ -359,17 +359,18 @@ public class Book {
     void processFootnote(Info bookInfo, Node node) {
         footnote++;
         if (footnote == 1) {
-            // end of text, start of footnotes
+            // end of text, start of footnotes - full width
             add("<hr/>\n");
         }
         add("<div class=\"footnote\" id=\"footnote_" + footnote + "\">\n");
-        add("[Note " + footnote + "]\n");
+        add("Note " + footnote + ":\n");
         // recursively process all the children
         process(bookInfo, node.getChildNodes());
         logger.info("Footnote [{}]: [{}]", footnote, node.getTextContent());
         // link back to anchor
         add("<a href=\"#note_" + footnote + "\">[Back]</a>\n");
         add("</div>");
+        processBreak(bookInfo, node);
     }
 
     // convenience method to append to contents

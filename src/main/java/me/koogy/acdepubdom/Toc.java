@@ -26,6 +26,8 @@ public class Toc {
     }
 
     void start(Info info, String cls, String filename, int tocIndex) {
+        // if there's a title use the title
+        // if not, use the Chapter I etc
         if (info.getTitle() != null) {
             tocContext.put("title", info.getTitle());
         } else {

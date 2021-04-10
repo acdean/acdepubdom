@@ -24,6 +24,9 @@ public class Info {
     public static String CHAPTER_NUMBER_STYLE_PROPERTY  = "chapter.number_style";
     public static String CHAPTER_NUMBER_IN_TOC_PROPERTY = "chapter.number_in_toc";
     public static String CHAPTER_NUMBERS_CONTINUOUS     = "chapter.numbers_continuous";
+    public static String PREFIX_TITLE_TEXT_PROPERTY     = "prefix.title_text";
+    public static String APPENDIX_TITLE_TEXT_PROPERTY   = "appendix.title_text";
+    public static String ACT_TITLE_TEXT_PROPERTY        = "act.title_text";
     // option value
     public static String CHAPTER_TITLE_TEXT_NONE        = "none";
 
@@ -97,6 +100,9 @@ public class Info {
         options.put(CHAPTER_NUMBER_STYLE_PROPERTY,  "I");
         options.put(CHAPTER_NUMBER_IN_TOC_PROPERTY, "true");
         options.put(CHAPTER_NUMBERS_CONTINUOUS,     "false");
+        options.put(PREFIX_TITLE_TEXT_PROPERTY,     "Preface");
+        options.put(APPENDIX_TITLE_TEXT_PROPERTY,   "Appendix");
+        options.put(ACT_TITLE_TEXT_PROPERTY,        "Act");
     }
 
     final void setNumbering(int type, int number) {
@@ -105,11 +111,17 @@ public class Info {
                 numbering = Numbers.numbering(options.get(PART_TITLE_TEXT_PROPERTY), options.get(PART_NUMBER_STYLE_PROPERTY), number);
                 break;
             // TODO numbering of chapters
+            case Book.PREFIX:
+                numbering = Numbers.numbering(options.get(PREFIX_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), number);
+                break;
+            case Book.APPENDIX:
+                numbering = Numbers.numbering(options.get(APPENDIX_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), number);
+                break;
             case Book.ACT:
+                numbering = Numbers.numbering(options.get(ACT_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), number);
+                break;
             case Book.CHAPTER:
             case Book.PART_CHAPTER:
-            case Book.PREFIX:
-            case Book.APPENDIX:
                 numbering = Numbers.numbering(options.get(CHAPTER_TITLE_TEXT_PROPERTY), options.get(CHAPTER_NUMBER_STYLE_PROPERTY), number);
                 break;
         }
