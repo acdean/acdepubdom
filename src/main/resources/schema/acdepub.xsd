@@ -207,11 +207,21 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="poem1" type="xs:string"/>
-  <xs:element name="poem2" type="xs:string"/>
-  <xs:element name="poem3" type="xs:string"/>
-  <xs:element name="poem4" type="xs:string"/>
-  <xs:element name="poem5" type="xs:string"/>
+
+  <!-- a line can have italics -->
+  <xs:complexType name="lineType" mixed="true">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="i" type="xs:string"/>
+        <xs:element name="em" type="xs:string"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="poem1" type="lineType"/>
+  <xs:element name="poem2" type="lineType"/>
+  <xs:element name="poem3" type="lineType"/>
+  <xs:element name="poem4" type="lineType"/>
+  <xs:element name="poem5" type="lineType"/>
 
   <!-- letters are wrappers like p -->
   <xs:element name="letter">
