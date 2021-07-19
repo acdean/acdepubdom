@@ -146,6 +146,7 @@
         <xs:element ref="section" maxOccurs="unbounded"/>
         <xs:element ref="personae" maxOccurs="unbounded"/>
         <xs:element ref="footnote" maxOccurs="unbounded"/>
+        <xs:element ref="table" maxOccurs="unbounded"/>
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="title"/>
@@ -232,6 +233,31 @@
           <xs:element ref="right" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element ref="break" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element ref="centre" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="table">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tr" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="tr">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="td" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="td">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element ref="p" maxOccurs="unbounded"/>
+          <xs:element ref="right" maxOccurs="unbounded"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
