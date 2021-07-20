@@ -231,6 +231,16 @@ public class Book {
                     processFootnote(bookInfo, node);
                     break;
 
+                case "table":
+                    processTable(bookInfo, node);
+                    break;
+                case "tr":
+                    processTr(bookInfo, node);
+                    break;
+                case "td":
+                    processTd(bookInfo, node);
+                    break;
+
                 default:
                     logger.info("ignored");
                     break;
@@ -371,6 +381,22 @@ public class Book {
         add("<a href=\"#note_" + footnote + "\">[Back]</a>\n");
         add("</div>");
         processBreak(bookInfo, node);
+    }
+
+    void processTable(Info bookInfo, Node node) {
+        add("<table>\n");
+        process(bookInfo, node.getChildNodes());
+        add("</table>\n");
+    }
+    void processTr(Info bookInfo, Node node) {
+        add("<tr>\n");
+        process(bookInfo, node.getChildNodes());
+        add("</tr>\n");
+    }
+    void processTd(Info bookInfo, Node node) {
+        add("<td>\n");
+        process(bookInfo, node.getChildNodes());
+        add("</td>\n");
     }
 
     // convenience method to append to contents
