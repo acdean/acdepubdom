@@ -72,8 +72,10 @@ public class Book {
         // parse book info
         Info bookInfo = Info.findInfo(root, BOOK, 0);
         bookInfo.setUid(uid);
-        File imageFile = new File(directory, COVER_IMAGE_FILE);
+        File imageFile = new File(".", COVER_IMAGE_FILE);
+        logger.info("Image File [{}]", imageFile.getCanonicalPath());
         if (imageFile.exists()) {
+            logger.info("Cover image found");
             bookInfo.hasImage(true);
         }
         logger.info("Info [{}]", bookInfo);
