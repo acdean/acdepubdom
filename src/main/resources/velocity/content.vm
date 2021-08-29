@@ -19,6 +19,9 @@
 #foreach( $item in $items )
     <item id="${item}" href="${item}.xhtml" media-type="application/xhtml+xml"/>
 #end
+#foreach( $image in $images )
+    <item id="${image}" href="${image}.jpg" media-type="image/jpeg"/>
+#end
   </manifest>
   <spine toc="ncx">
 #if(${book.hasImage})
@@ -27,6 +30,9 @@
     <itemref idref="title_page"/>
 #foreach( $item in $items )
     <itemref idref="${item}"/>
+#end
+#foreach( $image in $images )
+    <itemref idref="${image}"/>
 #end
   </spine>
 </package>

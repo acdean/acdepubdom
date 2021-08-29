@@ -46,6 +46,9 @@ public class Template {
         Template.this.write(templateName, filename, info, null);
     }
     void write(String templateName, String filename, Info info, List<String> items) {
+        write(templateName, filename, info, items, null);
+    }
+    void write(String templateName, String filename, Info info, List<String> items, List<String> images) {
         Writer writer = null;
         VelocityContext context = new VelocityContext();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -56,6 +59,10 @@ public class Template {
         }
         if (items != null) {
             context.put("items", items);
+        }
+        if (images != null) {
+            logger.info("Adding images [{}]", images.size());
+            context.put("images", images);
         }
 
         try {

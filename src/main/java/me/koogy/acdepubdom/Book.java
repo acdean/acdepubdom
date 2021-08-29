@@ -61,6 +61,7 @@ public class Book {
     // counts for footnote links and definitions
     int note = 0;
     int footnote = 0;
+    List<String> images = new ArrayList<>();    // images are per-book and are only in content.opf
 
     public Book(String filename, Element root) throws Exception {
 
@@ -88,15 +89,23 @@ public class Book {
 
         // write all the other bits, zip into final epub
         template.write(CONTAINER_TMPL, CONTAINER_FILE);
-        template.write(CONTENT_TMPL, CONTENT_FILE, null, items);
+        template.write(CONTENT_TMPL, CONTENT_FILE, null, items, images);
         template.write(MIMETYPE_TMPL, MIMETYPE_FILE);
         template.write(STYLESHEET_TMPL, STYLESHEET_FILE);
         template.write(TITLE_TMPL, TITLE_FILE, bookInfo);
+        logger.info("Filename [{}]", filename);
+        logger.info("Path [{}]", Paths.get(filename));
+        logger.info("Parent [{}]", Paths.get(filename).getParent());
+        //String srcDir = Paths.get(filename).getParent().toString();
+        //logger.info("SrcDir [{}]", srcDir);
         if (bookInfo.hasImage()) {
             template.write(COVER_TMPL, COVER_FILE);
             // copy image over
-            String srcDir = Paths.get(filename).getParent().toString();
-            copy(srcDir, directory.toString(), COVER_IMAGE_FILE);
+            copy(".", directory.toString(), COVER_IMAGE_FILE);
+        }
+        for (String image : images) {
+            // copy images over
+            copy(".", directory.toString(), image + ".jpg");
         }
         Zipper.write(directory, filename);
     }
@@ -239,6 +248,10 @@ public class Book {
                     break;
                 case "td":
                     processTd(bookInfo, node);
+                    break;
+
+                case "img":
+                    processImg(bookInfo, node);
                     break;
 
                 default:
@@ -397,6 +410,22 @@ public class Book {
         add("<td>\n");
         process(bookInfo, node.getChildNodes());
         add("</td>\n");
+    }
+
+    // images are like
+    // <img src="sowster"> // NB no extension
+    // jpg only at the moment and they should be 600x800 (or at least 6:8)
+    void processImg(Info bookInfo, Node node) {
+        String imageName = node.getAttributes().getNamedItem("src").getTextContent();
+        images.add(imageName);
+        logger.info("Image: [{}]", imageName);
+        add("<div>\n");
+        add("<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
+                + "version=\"1.1\" width=\"100%\" height=\"100%\" viewBox=\"0 0 600 800\" "
+                + "preserveAspectRatio=\"xMidYMid meet\">\n");
+        add("<image width=\"600\" height=\"800\" xlink:href=\"" + imageName + ".jpg\"/>");
+        add("</svg>\n");
+        add("</div>\n");
     }
 
     // convenience method to append to contents

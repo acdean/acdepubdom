@@ -64,6 +64,12 @@
   <xs:element name="p2" substitutionGroup="p"/>
   <xs:element name="p3" substitutionGroup="p"/>
 
+  <xs:element name="img">
+    <xs:complexType>
+      <xs:attribute name="src"/>
+    </xs:complexType>
+  </xs:element>
+
   <!-- footnotes currently just contain paragraphs, but i have seen poems etc -->
   <xs:element name="footnote">
     <xs:complexType>
@@ -73,8 +79,8 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="i" type="xs:string"/>
   <xs:element name="em" type="xs:string"/>
+  <xs:element name="i" type="xs:string"/>
   <xs:element name="sc" type="xs:string"/>
   <xs:element name="smallcaps" type="xs:string"/>
   <xs:element name="note" type="xs:string"/>
@@ -82,8 +88,9 @@
   <xs:element name="right">
     <xs:complexType mixed="true">
       <xs:choice maxOccurs="unbounded">
-        <xs:element ref="sc" minOccurs="0"/>
         <xs:element ref="em" minOccurs="0"/>
+        <xs:element ref="i" minOccurs="0"/>
+        <xs:element ref="sc" minOccurs="0"/>
         <xs:element ref="smallcaps" minOccurs="0"/>
       </xs:choice>
     </xs:complexType>
@@ -92,9 +99,10 @@
   <xs:element name="centre">
     <xs:complexType mixed="true">
       <xs:choice maxOccurs="unbounded">
-        <xs:element ref="sc" minOccurs="0"/>
         <xs:element ref="em" minOccurs="0"/>
         <xs:element ref="i" minOccurs="0"/>
+        <xs:element ref="sc" minOccurs="0"/>
+        <xs:element ref="smallcaps" minOccurs="0"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -147,6 +155,7 @@
         <xs:element ref="personae" maxOccurs="unbounded"/>
         <xs:element ref="footnote" maxOccurs="unbounded"/>
         <xs:element ref="table" maxOccurs="unbounded"/>
+        <xs:element ref="img" maxOccurs="unbounded"/>
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="title"/>
