@@ -31,8 +31,5 @@
 #foreach( $item in $items )
     <itemref idref="${item}"/>
 #end
-#foreach( $image in $images )
-    <itemref idref="${image}"/>
-#end
   </spine>
 </package>
