@@ -39,7 +39,7 @@ public class Info {
     private String numbering;  // number string, like "Part I" or "Chapter The First" // TODO
     private String contents;
     private String uid;
-    private boolean hasImage = false;
+    private String coverImage;
     private int type;
 
     public Info(int type, int number) {
@@ -189,12 +189,12 @@ public class Info {
         this.uid = uid;
     }
 
-    public boolean hasImage() {
-        return hasImage;
+    public String getCoverImage() {
+        return coverImage;
     }
 
-    public void hasImage(boolean hasImage) {
-        this.hasImage = hasImage;
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
     }
 
     public String getOption(String optionName) {

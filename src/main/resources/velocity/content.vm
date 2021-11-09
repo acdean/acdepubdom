@@ -9,22 +9,22 @@
     <meta name="cover" content="cover-image"/>
   </metadata>
   <manifest>
-    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
-    <item id="css" href="stylesheet.css" media-type="text/css"/>
-#if(${book.hasImage})
+#if(${book.coverImage} == "cover-image.jpg")
     <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
     <item id="cover-image" href="cover-image.jpg" media-type="image/jpeg"/>
 #end
-    <item id="title_page" href="title_page.xhtml" media-type="application/xhtml+xml"/>
 #foreach( $item in $items )
     <item id="${item}" href="${item}.xhtml" media-type="application/xhtml+xml"/>
 #end
 #foreach( $image in $images )
     <item id="${image}" href="${image}.jpg" media-type="image/jpeg"/>
 #end
+    <item id="css" href="stylesheet.css" media-type="text/css"/>
+    <item id="title_page" href="title_page.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
   </manifest>
   <spine toc="ncx">
-#if(${book.hasImage})
+#if(${book.coverImage} == "cover-image.jpg")
     <itemref idref="cover" linear="no"/>
 #end
     <itemref idref="title_page"/>

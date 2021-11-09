@@ -54,6 +54,7 @@ public class Template {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         context.put("date", format.format(new Date()));
         context.put("book", bookInfo);
+        logger.info("coverImage: [{}]", bookInfo.getCoverImage());
         if (info != null) {
             context.put("info", info);
         }

@@ -76,8 +76,9 @@ public class Book {
         logger.info("Image File [{}]", imageFile.getCanonicalPath());
         if (imageFile.exists()) {
             logger.info("Cover image found");
-            bookInfo.hasImage(true);
+            bookInfo.setCoverImage(COVER_IMAGE_FILE);
         }
+        logger.info("CoverImage [{}]", bookInfo.getCoverImage());
         logger.info("Info [{}]", bookInfo);
         template = new Template(directory, bookInfo);
         toc = new Toc(bookInfo, directory);
@@ -100,7 +101,7 @@ public class Book {
         logger.info("Parent [{}]", Paths.get(filename).getParent());
         //String srcDir = Paths.get(filename).getParent().toString();
         //logger.info("SrcDir [{}]", srcDir);
-        if (bookInfo.hasImage()) {
+        if (bookInfo.getCoverImage() != null) {
             template.write(COVER_TMPL, COVER_FILE);
             // copy image over
             copy(".", directory.toString(), COVER_IMAGE_FILE);
