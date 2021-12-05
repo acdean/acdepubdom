@@ -64,7 +64,7 @@
   <xs:element name="p2" substitutionGroup="p"/>
   <xs:element name="p3" substitutionGroup="p"/>
 
-  <xs:element name="img">
+  <xs:element name="image">
     <xs:complexType>
       <xs:attribute name="src"/>
     </xs:complexType>
@@ -155,7 +155,7 @@
         <xs:element ref="personae" maxOccurs="unbounded"/>
         <xs:element ref="footnote" maxOccurs="unbounded"/>
         <xs:element ref="table" maxOccurs="unbounded"/>
-        <xs:element ref="img" maxOccurs="unbounded"/>
+        <xs:element ref="image" maxOccurs="unbounded"/>
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="title"/>

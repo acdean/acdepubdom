@@ -253,8 +253,8 @@ public class Book {
                     processTd(bookInfo, node);
                     break;
 
-                case "img":
-                    processImg(bookInfo, node);
+                case "image":
+                    processImage(bookInfo, node);
                     break;
 
                 default:
@@ -416,9 +416,9 @@ public class Book {
     }
 
     // images are like
-    // <img src="sowster"> // NB no extension
+    // <image src="sowster"> // NB no extension
     // jpg only at the moment and they should be 600x800 (or at least 6:8)
-    void processImg(Info bookInfo, Node node) {
+    void processImage(Info bookInfo, Node node) {
         String imageName = node.getAttributes().getNamedItem("src").getTextContent();
         images.add(imageName);
         logger.info("Image: [{}]", imageName);
