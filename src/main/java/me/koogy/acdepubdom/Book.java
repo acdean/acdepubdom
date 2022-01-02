@@ -389,12 +389,12 @@ public class Book {
             add("<hr/>\n");
         }
         add("<div class=\"footnote\" id=\"footnote_" + footnote + "\">\n");
-        add("Note " + footnote + ":\n");
+        add("Note " + footnote + ": ");
+        // link back to anchor
+        add("<a href=\"#note_" + footnote + "\">[Back]</a>\n");
         // recursively process all the children
         process(bookInfo, node.getChildNodes());
         logger.info("Footnote [{}]: [{}]", footnote, node.getTextContent());
-        // link back to anchor
-        add("<a href=\"#note_" + footnote + "\">[Back]</a>\n");
         add("</div>");
         processBreak(bookInfo, node);
     }
