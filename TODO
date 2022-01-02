@@ -1,0 +1,30 @@
+Other combinations of titles etc.
+Acts / Speakers / Speeches / Directions / Lines.
+Footnotes not great.
+&s in titles, --s in titles
+Parts with only one chapter
+
+Reduce logging.
+Tests - golden files?
+
+X Make cover images optional.
+X Personae / Person
+X Ampersands (and other entities)
+X Prefixes without titles show as "${title}"
+X Prefixes are numbered as chapters
+X Tables
+X Images
+
+Anna Of The Five Towns
+    has no titles for the two prefaces
+    and has footnotes.
+
+Troades
+    is a play. With Acts.
+
+Tain Bo
+    Keep chapter numbers (XIII) but have titles as sections (because it has XVIIIa etc)
+
+Life's Little Ironies
+    Has parts with a single chapter
+    Has a part with an unnamed intial chapter (named Introduction as a workaround)
