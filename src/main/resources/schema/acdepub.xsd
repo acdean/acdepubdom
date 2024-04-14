@@ -63,6 +63,7 @@
   <xs:element name="p1" substitutionGroup="p"/>
   <xs:element name="p2" substitutionGroup="p"/>
   <xs:element name="p3" substitutionGroup="p"/>
+  <xs:element name="p4" substitutionGroup="p"/>
 
   <xs:element name="image">
     <xs:complexType>
